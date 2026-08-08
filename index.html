@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscripción Torneo 3x3 Basketball</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --color-primary: #FF6B35;
+            --color-primary-dark: #E55A27;
+            --color-primary-light: #FFB199;
+            --color-secondary: #1E3A5F;
+            --color-secondary-light: #2D5A8C;
+            --color-success: #10B981;
+            --color-error: #EF4444;
+            --color-warning: #F59E0B;
+            --color-bg: #F8F4F0;
+            --color-bg-alt: #F0EDE7;
+            --color-text: #1A1A1A;
+            --color-text-light: #6B7280;
+            --color-border: #E5E7EB;
+            --color-border-light: #F3F4F6;
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2.25rem;
+            --space-xl: 3.375rem;
+            --space-2xl: 5.0625rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --font-display: 'Poppins', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #1A1A1A;
+                --color-text: #F8F4F0;
+                --color-text-light: #B0B0B0;
+                --color-border: #3A3A3A;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --color-bg: #1A1A1A;
+            --color-text: #F8F4F0;
+            --color-text-light: #B0B0B0;
+            --color-border: #3A3A3A;
+        }
+
+        :root[data-theme="light"] {
+            --color-bg: #F8F4F0;
+            --color-text: #1A1A1A;
+            --color-text-light: #666;
+            --color-border: #E0D9D0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 70ch;
+            margin: 0 auto;
+            padding: var(--space-lg) var(--space-md);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2xl);
+        }
+
+        header {
+            text-align: center;
+            padding: var(--space-xl) 0 var(--space-lg);
+            border-bottom: 3px solid var(--color-primary);
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            color: white;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 9999px;
+            margin-bottom: var(--space-md);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 2.75rem;
+            font-weight: 700;
+            text-wrap: balance;
+            margin-bottom: var(--space-sm);
+            color: var(--color-text);
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--color-text-light);
+            margin-bottom: var(--space-lg);
+            font-weight: 500;
+        }
+
+        .info-bar {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(135deg, var(--color-primary), #FF8A50);
+            color: white;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            text-wrap: balance;
+            box-shadow: 0 4px 6px rgba(255, 107, 53, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .info-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 107, 53, 0.2);
+        }
+
+        .info-bar strong {
+            display: block;
+            font-weight: 600;
+            font-family: var(--font-display);
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            padding: var(--space-2xl);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.03), rgba(30, 58, 95, 0.03));
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-section:focus-within {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.08);
+        }
+
+        .form-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            text-wrap: balance;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-secondary);
+        }
+
+        input, select, textarea {
+            padding: 0.875rem var(--space-sm);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 1rem;
+            background-color: var(--color-bg-alt);
+            color: var(--color-text);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:hover, select:hover, textarea:hover {
+            background-color: var(--color-bg);
+            border-color: var(--color-primary-light);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
+            background-color: var(--color-bg);
+        }
+
+        .player-fields {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            padding: var(--space-lg) var(--space-xl);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), transparent);
+            border-left: 4px solid var(--color-primary);
+            margin-top: var(--space-md);
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .player-number {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--color-secondary);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn {
+            padding: 0.875rem var(--space-lg);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: var(--font-display);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary), #FF8A50);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+            color: white;
+            margin-top: var(--space-lg);
+            box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(30, 58, 95, 0.4);
+        }
+
+        .btn-small {
+            padding: 0.6rem var(--space-md);
+            font-size: 0.7rem;
+            background-color: transparent;
+            color: var(--color-error);
+            border: 2px solid var(--color-error);
+            box-shadow: none;
+        }
+
+        .btn-small:hover {
+            background-color: var(--color-error);
+            color: white;
+        }
+
+        .alert {
+            padding: var(--space-lg) var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+            display: none;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 5px solid;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+            border-left-color: var(--color-success);
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--color-error);
+            border-left-color: var(--color-error);
+        }
+
+        .teams-list {
+            padding: var(--space-2xl);
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.03), rgba(255, 107, 53, 0.02));
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .teams-list h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            margin-bottom: var(--space-xl);
+            text-wrap: balance;
+        }
+
+        .team-card {
+            padding: var(--space-lg) var(--space-xl);
+            margin-bottom: var(--space-lg);
+            border: 2px solid var(--color-border);
+            border-left: 5px solid var(--color-primary);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.02), transparent);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .team-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .team-name {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .team-info {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            line-height: 1.7;
+        }
+
+        .player-list {
+            margin-top: var(--space-lg);
+            padding-top: var(--space-lg);
+            border-top: 2px solid var(--color-border);
+        }
+
+        .player-list strong {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--color-secondary);
+            display: block;
+            margin-bottom: var(--space-md);
+        }
+
+        .player-item {
+            font-size: 0.85rem;
+            color: var(--color-text);
+            padding: var(--space-md) 0;
+            transition: padding-left 0.2s;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .player-item:last-child {
+            border-bottom: none;
+        }
+
+        .player-item:hover {
+            padding-left: var(--space-sm);
+        }
+
+        .player-item strong {
+            color: var(--color-primary);
+            font-weight: 600;
+            display: block;
+            margin-bottom: var(--space-xs);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            color: var(--color-text-light);
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            padding: var(--space-sm);
+            background: linear-gradient(135deg, var(--color-primary), #FF8A50);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            z-index: 1000;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(20deg);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .container {
+                padding: var(--space-md);
+                gap: var(--space-lg);
+            }
+        }
+
+        .error-message {
+            font-size: 0.75rem;
+            color: var(--color-error);
+            margin-top: var(--space-xs);
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        input.error, select.error {
+            border-color: var(--color-error);
+        }
+
+        .payment-info {
+            padding: var(--space-lg) var(--space-xl);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(255, 107, 53, 0.05));
+            border: 2px dashed var(--color-success);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .payment-info strong {
+            font-family: var(--font-display);
+            color: var(--color-success);
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-size: 1.1rem;
+        }
+
+        .payment-info p {
+            font-size: 0.95rem;
+            color: var(--color-text);
+            margin-bottom: var(--space-sm);
+            line-height: 1.6;
+        }
+
+        .payment-info em {
+            font-style: italic;
+            color: var(--color-text-light);
+        }
+
+        input[type="file"] {
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 0.6rem var(--space-md);
+            background: linear-gradient(135deg, var(--color-primary), #FF8A50);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin-right: var(--space-sm);
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            filter: brightness(1.1);
+        }
+
+        .payment-status {
+            margin-top: var(--space-lg);
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border-left: 4px solid var(--color-success);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+
+        .payment-status strong {
+            color: var(--color-success);
+            display: block;
+            margin-bottom: var(--space-xs);
+            font-weight: 600;
+        }
+
+        .payment-status.pending {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+            border-left-color: var(--color-warning);
+        }
+
+        .payment-status.pending strong {
+            color: var(--color-warning);
+        }
+
+        .tournament-bracket {
+            padding: var(--space-2xl);
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.03), rgba(255, 107, 53, 0.02));
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .tournament-bracket h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            color: var(--color-secondary);
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .bracket-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .bracket-section h3 {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            color: var(--color-primary);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .group-card {
+            padding: var(--space-lg);
+            background: var(--color-bg-alt);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .group-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.125rem;
+            color: var(--color-secondary);
+            margin-bottom: var(--space-md);
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: var(--space-sm);
+        }
+
+        .group-team {
+            padding: var(--space-sm) var(--space-md);
+            margin-bottom: var(--space-sm);
+            background: white;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .match-card {
+            padding: var(--space-md);
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            margin-bottom: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .match-team {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .match-vs {
+            color: var(--color-text-light);
+            font-weight: 600;
+            padding: 0 var(--space-sm);
+        }
+
+        .knockout-bracket {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .knockout-round {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .knockout-round h4 {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-sm);
+        }
+
+        @media (max-width: 768px) {
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .knockout-bracket {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <div class="container">
+        <header>
+            <div class="badge">🏀 OPEN 3X3</div>
+            <h1>OPEN 3X3 TORREVIEJA 2026</h1>
+            <p class="subtitle">C.B. Torrevieja | 22 de Agosto 2026</p>
+            <div class="info-bar">
+                <div>
+                    <strong>📍 Pabellón Cecilio Gallego</strong>
+                    Inscripciones abiertas. ¡Forma tu equipo de 3 o 4 jugadores!
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <div class="payment-info">
+                <strong>💳 Forma de Pago</strong>
+                <p>Transferencia Bancaria: 20€ por jugador</p>
+                <p>IBAN: <em>Se proporcionará al confirmar inscripción</em></p>
+            </div>
+
+            <form class="form-section" id="teamForm">
+                <h2>Inscribe tu equipo</h2>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label for="teamName">Nombre del equipo *</label>
+                        <input type="text" id="teamName" name="teamName" required placeholder="Ej: Los Campeones">
+                        <div class="error-message">Nombre del equipo es requerido</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="captainName">Nombre del capitán *</label>
+                        <input type="text" id="captainName" name="captainName" required placeholder="Tu nombre completo">
+                        <div class="error-message">Nombre del capitán es requerido</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="captainPhone">Teléfono *</label>
+                        <input type="tel" id="captainPhone" name="captainPhone" required placeholder="Ej: +34 612 345 678">
+                        <div class="error-message">Teléfono válido requerido</div>
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label for="captainEmail">Email *</label>
+                        <input type="email" id="captainEmail" name="captainEmail" required placeholder="tu.email@ejemplo.com">
+                        <div class="error-message">Email válido requerido</div>
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label for="playerCount">Número de jugadores *</label>
+                        <select id="playerCount" name="playerCount" required onchange="updatePlayerFields()">
+                            <option value="">Selecciona...</option>
+                            <option value="3">3 jugadores</option>
+                            <option value="4">4 jugadores</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="playersContainer"></div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label for="paymentFile">Justificante de Pago (Transferencia Bancaria) *</label>
+                        <input type="file" id="paymentFile" name="paymentFile" required accept="image/*,.pdf" placeholder="Captura de pantalla o comprobante">
+                        <div class="error-message">Justificante de pago requerido</div>
+                        <small style="color: var(--color-text-light); display: block; margin-top: var(--space-xs);">Sube imagen o PDF del comprobante de transferencia</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Inscribir equipo</button>
+            </form>
+
+            <div class="teams-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+                    <h2 style="margin-bottom: 0;">Equipos inscritos</h2>
+                    <button id="toggleInscriptions" class="btn" style="background: linear-gradient(135deg, var(--color-primary), #FF8A50); color: white; padding: 0.75rem var(--space-lg); margin-bottom: 0;">Cerrar Inscripciones</button>
+                </div>
+                <div id="teamsList">
+                    <div class="empty-state">
+                        <p>Aún no hay equipos inscritos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tournamentSection" style="display: none;">
+                <div class="tournament-bracket">
+                    <h2>🏆 Torneo 3X3 Torrevieja 2026</h2>
+
+                    <div class="bracket-section">
+                        <h3>Fase de Grupos</h3>
+                        <div id="groupsContainer" class="groups-grid"></div>
+                    </div>
+
+                    <div class="bracket-section">
+                        <h3>Eliminatorias</h3>
+                        <div id="knockoutContainer" class="knockout-bracket"></div>
+                    </div>
+
+                    <button id="toggleInscriptionsBack" class="btn btn-secondary" style="width: 100%;">Volver a Inscripciones</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const shirtsizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        let teams = JSON.parse(localStorage.getItem('basketballTeams')) || [];
+        let isInscriptionsClosed = false;
+        let tournament = null;
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                document.documentElement.setAttribute('data-theme', saved);
+            }
+        }
+
+        function updatePlayerFields() {
+            const count = document.getElementById('playerCount').value;
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = '';
+
+            if (!count) return;
+
+            const section = document.createElement('div');
+            section.className = 'player-fields';
+
+            for (let i = 1; i <= parseInt(count); i++) {
+                const playerDiv = document.createElement('div');
+                playerDiv.style.marginBottom = 'var(--space-md)';
+
+                playerDiv.innerHTML = `
+                    <div class="player-number">Jugador ${i}</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="playerName${i}">Nombre y apellidos *</label>
+                            <input type="text" id="playerName${i}" name="playerName${i}" required placeholder="Ej: Juan García López">
+                            <div class="error-message">Nombre y apellidos requeridos</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="playerDNI${i}">DNI *</label>
+                            <input type="text" id="playerDNI${i}" name="playerDNI${i}" required placeholder="Ej: 12345678A">
+                            <div class="error-message">DNI requerido</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="playerBirth${i}">Fecha de Nacimiento *</label>
+                            <input type="date" id="playerBirth${i}" name="playerBirth${i}" required>
+                            <div class="error-message">Fecha de nacimiento requerida</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="playerShirt${i}">Talla Camiseta Welcome Pack *</label>
+                            <select id="playerShirt${i}" name="playerShirt${i}" required>
+                                <option value="">Selecciona...</option>
+                                ${shirtsizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+                            </select>
+                            <div class="error-message">Talla requerida</div>
+                        </div>
+                    </div>
+                `;
+
+                section.appendChild(playerDiv);
+            }
+
+            container.appendChild(section);
+        }
+
+        function validateForm() {
+            const form = document.getElementById('teamForm');
+            let valid = true;
+            const errors = [];
+
+            // Team info
+            const teamName = document.getElementById('teamName').value.trim();
+            const captainName = document.getElementById('captainName').value.trim();
+            const captainPhone = document.getElementById('captainPhone').value.trim();
+            const captainEmail = document.getElementById('captainEmail').value.trim();
+            const playerCount = document.getElementById('playerCount').value;
+
+            if (!teamName) {
+                valid = false;
+                errors.push('Nombre del equipo es requerido');
+            }
+            if (!captainName) {
+                valid = false;
+                errors.push('Nombre del capitán es requerido');
+            }
+            if (!captainPhone || !/^\d{9,}/.test(captainPhone.replace(/\D/g, ''))) {
+                valid = false;
+                errors.push('Teléfono válido es requerido');
+            }
+            if (!captainEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(captainEmail)) {
+                valid = false;
+                errors.push('Email válido es requerido');
+            }
+            if (!playerCount) {
+                valid = false;
+                errors.push('Debes seleccionar el número de jugadores');
+            }
+
+            const paymentFile = document.getElementById('paymentFile').files[0];
+            if (!paymentFile) {
+                valid = false;
+                errors.push('Justificante de pago es requerido');
+            }
+
+            // Players
+            for (let i = 1; i <= parseInt(playerCount || 0); i++) {
+                const name = document.getElementById(`playerName${i}`).value.trim();
+                const dni = document.getElementById(`playerDNI${i}`).value.trim();
+                const birth = document.getElementById(`playerBirth${i}`).value;
+                const shirt = document.getElementById(`playerShirt${i}`).value;
+
+                if (!name) {
+                    valid = false;
+                    errors.push(`Nombre del jugador ${i} es requerido`);
+                }
+                if (!dni) {
+                    valid = false;
+                    errors.push(`DNI del jugador ${i} es requerido`);
+                }
+                if (!birth) {
+                    valid = false;
+                    errors.push(`Fecha de nacimiento del jugador ${i} es requerida`);
+                }
+                if (!shirt) {
+                    valid = false;
+                    errors.push(`Talla de camiseta del jugador ${i} es requerida`);
+                }
+            }
+
+            return { valid, errors };
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById(`${type}Alert`);
+            alert.textContent = message;
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 5000);
+        }
+
+        function saveTeam(formData) {
+            const playerCount = parseInt(formData.get('playerCount'));
+            const players = [];
+
+            for (let i = 1; i <= playerCount; i++) {
+                players.push({
+                    name: formData.get(`playerName${i}`),
+                    dni: formData.get(`playerDNI${i}`),
+                    birth: formData.get(`playerBirth${i}`),
+                    shirt: formData.get(`playerShirt${i}`)
+                });
+            }
+
+            const paymentFile = document.getElementById('paymentFile').files[0];
+            let paymentInfo = null;
+            if (paymentFile) {
+                paymentInfo = {
+                    name: paymentFile.name,
+                    size: paymentFile.size,
+                    type: paymentFile.type,
+                    uploadedAt: new Date().toLocaleString('es-ES')
+                };
+            }
+
+            const team = {
+                id: Date.now(),
+                name: formData.get('teamName'),
+                captain: {
+                    name: formData.get('captainName'),
+                    phone: formData.get('captainPhone'),
+                    email: formData.get('captainEmail')
+                },
+                players,
+                payment: paymentInfo,
+                inscribedAt: new Date().toLocaleDateString('es-ES')
+            };
+
+            teams.push(team);
+            localStorage.setItem('basketballTeams', JSON.stringify(teams));
+            renderTeams();
+        }
+
+        function renderTeams() {
+            const list = document.getElementById('teamsList');
+
+            if (teams.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Aún no hay equipos inscritos.</p></div>';
+                return;
+            }
+
+            list.innerHTML = teams.map(team => `
+                <div class="team-card">
+                    <div class="team-header">
+                        <div>
+                            <div class="team-name">${team.name}</div>
+                            <div class="team-info">
+                                Capitán: ${team.captain.name}<br>
+                                Teléfono: ${team.captain.phone}<br>
+                                Email: ${team.captain.email}<br>
+                                Inscrito: ${team.inscribedAt}
+                            </div>
+                        </div>
+                        <button class="btn btn-small" onclick="deleteTeam(${team.id})">Eliminar</button>
+                    </div>
+                    <div class="player-list">
+                        <strong>${team.players.length} jugadores:</strong>
+                        ${team.players.map((p, i) => `
+                            <div class="player-item">
+                                <strong>${i + 1}. ${p.name}</strong>
+                                DNI: ${p.dni} | Nac: ${p.birth} | Talla: ${p.shirt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${team.payment ? `
+                        <div class="payment-status">
+                            <strong>✅ Pago Recibido</strong>
+                            Justificante: ${team.payment.name} (${(team.payment.size / 1024).toFixed(2)} KB)
+                        </div>
+                    ` : `
+                        <div class="payment-status pending">
+                            <strong>⏳ Pago Pendiente</strong>
+                            Requiere justificante de transferencia
+                        </div>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        function deleteTeam(id) {
+            if (confirm('¿Eliminar este equipo?')) {
+                teams = teams.filter(t => t.id !== id);
+                localStorage.setItem('basketballTeams', JSON.stringify(teams));
+                renderTeams();
+                showAlert('Equipo eliminado correctamente');
+            }
+        }
+
+        document.getElementById('teamForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const validation = validateForm();
+            if (!validation.valid) {
+                showAlert(validation.errors[0], 'error');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            saveTeam(formData);
+            e.target.reset();
+            document.getElementById('playersContainer').innerHTML = '';
+            showAlert(`¡Equipo "${formData.get('teamName')}" inscrito correctamente!`);
+        });
+
+        function createTournament() {
+            if (teams.length < 2) {
+                showAlert('Mínimo 2 equipos para crear torneo', 'error');
+                return;
+            }
+
+            isInscriptionsClosed = true;
+
+            const shuffled = [...teams].sort(() => Math.random() - 0.5);
+            const mid = Math.ceil(shuffled.length / 2);
+            const groupA = shuffled.slice(0, mid);
+            const groupB = shuffled.slice(mid);
+
+            tournament = {
+                groups: { A: groupA, B: groupB },
+                matches: generateGroupMatches(groupA, groupB),
+                semifinals: [],
+                final: null
+            };
+
+            localStorage.setItem('tournament', JSON.stringify(tournament));
+            updateUIForTournament();
+        }
+
+        function generateGroupMatches(groupA, groupB) {
+            const matches = [];
+            const generateRoundRobin = (group, groupName) => {
+                for (let i = 0; i < group.length; i++) {
+                    for (let j = i + 1; j < group.length; j++) {
+                        matches.push({
+                            id: `${groupName}-${i}-${j}`,
+                            group: groupName,
+                            team1: group[i],
+                            team2: group[j],
+                            score1: null,
+                            score2: null
+                        });
+                    }
+                }
+            };
+            generateRoundRobin(groupA, 'A');
+            generateRoundRobin(groupB, 'B');
+            return matches;
+        }
+
+        function updateUIForTournament() {
+            document.getElementById('teamsList').parentElement.style.display = 'none';
+            document.getElementById('tournamentSection').style.display = 'block';
+            renderGroups();
+            renderKnockout();
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '';
+
+            ['A', 'B'].forEach(groupName => {
+                const group = tournament.groups[groupName];
+                const card = document.createElement('div');
+                card.className = 'group-card';
+                card.innerHTML = `
+                    <h4>Grupo ${groupName}</h4>
+                    ${group.map(team => `<div class="group-team">${team.name}</div>`).join('')}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderKnockout() {
+            const container = document.getElementById('knockoutContainer');
+
+            const semifinalists = [
+                tournament.groups.A[0],
+                tournament.groups.B[0],
+                tournament.groups.A[1] || null,
+                tournament.groups.B[1] || null
+            ].filter(t => t);
+
+            let semifinalHTML = '';
+            for (let i = 0; i < semifinalists.length; i += 2) {
+                if (semifinalists[i + 1]) {
+                    semifinalHTML += `
+                        <div class="match-card">
+                            <div class="match-team">${semifinalists[i].name}</div>
+                            <div class="match-vs">vs</div>
+                            <div class="match-team">${semifinalists[i + 1].name}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = `
+                <div class="knockout-round">
+                    <h4>Semifinales</h4>
+                    ${semifinalHTML || '<p style="font-size: 0.85rem; color: var(--color-text-light);">Pendiente de resultados</p>'}
+                </div>
+                <div class="knockout-round">
+                    <h4>Final</h4>
+                    <p style="font-size: 0.85rem; color: var(--color-text-light);">Pendiente de eliminatorias</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('toggleInscriptions').addEventListener('click', () => {
+            if (!isInscriptionsClosed) {
+                createTournament();
+                document.getElementById('toggleInscriptions').textContent = 'Abrir Inscripciones';
+            } else {
+                isInscriptionsClosed = false;
+                document.getElementById('teamsList').parentElement.style.display = 'block';
+                document.getElementById('tournamentSection').style.display = 'none';
+                document.getElementById('toggleInscriptions').textContent = 'Cerrar Inscripciones';
+                localStorage.removeItem('tournament');
+            }
+        });
+
+        document.getElementById('toggleInscriptionsBack').addEventListener('click', () => {
+            isInscriptionsClosed = false;
+            document.getElementById('teamsList').parentElement.style.display = 'block';
+            document.getElementById('tournamentSection').style.display = 'none';
+            document.getElementById('toggleInscriptions').textContent = 'Cerrar Inscripciones';
+            localStorage.removeItem('tournament');
+        });
+
+        loadTheme();
+        renderTeams();
+    </script>
+</body>
+</html>
