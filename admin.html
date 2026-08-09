@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Open 3x3 Torrevieja</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --color-primary: #FF6B35;
+            --color-secondary: #1E3A5F;
+            --color-secondary-light: #2D5A8C;
+            --color-success: #10B981;
+            --color-error: #EF4444;
+            --color-warning: #F59E0B;
+            --color-bg: #F8F4F0;
+            --color-bg-alt: #F0EDE7;
+            --color-text: #1A1A1A;
+            --color-text-light: #6B7280;
+            --color-border: #E5E7EB;
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2.25rem;
+            --space-xl: 3.375rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --font-display: 'Poppins', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 90ch;
+            margin: 0 auto;
+            padding: var(--space-lg) var(--space-md);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: var(--space-md);
+            border-bottom: 3px solid var(--color-primary);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            color: var(--color-secondary);
+        }
+
+        .btn {
+            padding: 0.7rem var(--space-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: var(--font-display);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary), #FF8A50);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+            color: white;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid var(--color-border);
+            color: var(--color-text-light);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 2px solid var(--color-error);
+            color: var(--color-error);
+        }
+
+        .btn-sm { padding: 0.5rem 0.9rem; font-size: 0.75rem; }
+
+        #loginSection {
+            max-width: 28rem;
+            margin: var(--space-xl) auto;
+            width: 100%;
+            padding: var(--space-xl);
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        #loginSection h2 {
+            font-family: var(--font-display);
+            color: var(--color-secondary);
+            text-align: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-secondary);
+        }
+
+        input {
+            padding: 0.8rem var(--space-sm);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .alert {
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .alert.show { display: block; }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-error);
+            border-left-color: var(--color-error);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+            border-left-color: var(--color-success);
+        }
+
+        #adminSection { display: none; }
+
+        .stats-bar {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            padding: var(--space-sm) var(--space-md);
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+
+        .stat-pill strong {
+            font-family: var(--font-display);
+            color: var(--color-secondary);
+            display: block;
+            font-size: 1.25rem;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .team-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-left: 5px solid var(--color-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .team-card.paid { border-left-color: var(--color-success); }
+
+        .team-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .team-name {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .team-meta {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            line-height: 1.7;
+        }
+
+        .payment-pill {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .payment-pill.paid {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--color-success);
+        }
+
+        .payment-pill.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+        }
+
+        .action-row {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--space-sm);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            font-family: var(--font-display);
+            color: var(--color-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--color-text-light);
+        }
+
+        .bracket-groups {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .group-card {
+            padding: var(--space-md);
+            background: var(--color-bg-alt);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius);
+        }
+
+        .group-card h4 {
+            font-family: var(--font-display);
+            margin-bottom: var(--space-sm);
+        }
+
+        .group-team {
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border-radius: var(--radius);
+            margin-bottom: var(--space-xs);
+            font-size: 0.85rem;
+        }
+
+        .section-card {
+            background: white;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+
+        .overflow-x { overflow-x: auto; }
+
+        @media (max-width: 640px) {
+            .bracket-groups { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏀 Panel Admin</h1>
+            <button class="btn btn-ghost" id="logoutBtn" style="display:none;">Cerrar sesión</button>
+        </header>
+
+        <section id="loginSection">
+            <h2>Acceso privado</h2>
+            <div class="alert alert-error" id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required autocomplete="username">
+                </div>
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Entrar</button>
+            </form>
+        </section>
+
+        <section id="adminSection">
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <div class="stats-bar">
+                <div class="stat-pill"><strong id="statTotal">0</strong>Equipos</div>
+                <div class="stat-pill"><strong id="statPaid">0</strong>Pagados</div>
+                <div class="stat-pill"><strong id="statPending">0</strong>Pendientes</div>
+                <div class="stat-pill"><strong id="statPlayers">0</strong>Jugadores</div>
+            </div>
+
+            <div class="section-card">
+                <div class="toolbar">
+                    <h2 style="font-family: var(--font-display); color: var(--color-secondary);">Sorteo del Torneo</h2>
+                    <div style="display:flex; gap: var(--space-sm);">
+                        <button class="btn btn-secondary" id="drawBtn">Cerrar Inscripciones y Sortear</button>
+                        <button class="btn btn-danger" id="resetDrawBtn" style="display:none;">Reiniciar Sorteo</button>
+                    </div>
+                </div>
+                <div id="bracketDisplay"></div>
+            </div>
+
+            <div class="section-card">
+                <h2 style="font-family: var(--font-display); color: var(--color-secondary); margin-bottom: var(--space-md);">Equipos Inscritos</h2>
+                <div id="teamsList"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://xehgsfzdffuqvlwxfrpi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhlaGdzZnpkZmZ1cXZsd3hmcnBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMjU1MTksImV4cCI6MjEwMTgwMTUxOX0.Et60SK7B5IB9VghBXBrZxBhe5_icYErRD9S9f1K7Wt0';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function showAlert(id, message) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 6000);
+        }
+
+        async function checkSession() {
+            const { data } = await sb.auth.getSession();
+            if (data.session) {
+                showAdmin();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+        }
+
+        function showAdmin() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            loadTeams();
+            loadTournament();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Entrar';
+
+            if (error) {
+                showAlert('loginError', 'Credenciales incorrectas');
+                return;
+            }
+            showAdmin();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await sb.auth.signOut();
+            showLogin();
+        });
+
+        async function loadTeams() {
+            const { data: teams, error } = await sb
+                .from('teams')
+                .select('*, players(*)')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                showAlert('errorAlert', 'Error al cargar equipos: ' + error.message);
+                return;
+            }
+
+            renderStats(teams);
+            renderTeamsList(teams);
+        }
+
+        function renderStats(teams) {
+            const totalPlayers = teams.reduce((sum, t) => sum + (t.players?.length || 0), 0);
+            const paid = teams.filter(t => t.payment_status === 'paid').length;
+            document.getElementById('statTotal').textContent = teams.length;
+            document.getElementById('statPaid').textContent = paid;
+            document.getElementById('statPending').textContent = teams.length - paid;
+            document.getElementById('statPlayers').textContent = totalPlayers;
+        }
+
+        function renderTeamsList(teams) {
+            const list = document.getElementById('teamsList');
+
+            if (teams.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Aún no hay equipos inscritos.</p></div>';
+                return;
+            }
+
+            list.innerHTML = teams.map(team => `
+                <div class="team-card ${team.payment_status === 'paid' ? 'paid' : ''}">
+                    <div class="team-card-header">
+                        <div>
+                            <div class="team-name">${escapeHtml(team.name)}</div>
+                            <div class="team-meta">
+                                Capitán: ${escapeHtml(team.captain_name)}<br>
+                                Tel: ${escapeHtml(team.captain_phone)} | Email: ${escapeHtml(team.captain_email)}<br>
+                                Inscrito: ${new Date(team.created_at).toLocaleString('es-ES')}
+                            </div>
+                        </div>
+                        <span class="payment-pill ${team.payment_status === 'paid' ? 'paid' : 'pending'}">
+                            ${team.payment_status === 'paid' ? '✅ Pagado' : '⏳ Pendiente'}
+                        </span>
+                    </div>
+
+                    <div class="action-row">
+                        ${team.payment_status === 'paid'
+                            ? `<button class="btn btn-warning btn-sm" onclick="setPaymentStatus('${team.id}', 'pending')">Marcar Pendiente</button>`
+                            : `<button class="btn btn-success btn-sm" onclick="setPaymentStatus('${team.id}', 'paid')">Marcar Pagado</button>`
+                        }
+                        ${team.payment_proof_path
+                            ? `<button class="btn btn-ghost btn-sm" onclick="viewProof('${team.payment_proof_path}')">Ver Justificante</button>`
+                            : `<span style="font-size:0.8rem; color: var(--color-text-light);">Sin justificante</span>`
+                        }
+                        <button class="btn btn-danger btn-sm" onclick="deleteTeam('${team.id}', '${team.payment_proof_path || ''}')">Eliminar Equipo</button>
+                    </div>
+
+                    <div class="overflow-x">
+                        <table>
+                            <thead>
+                                <tr><th>#</th><th>Nombre</th><th>DNI</th><th>Nacimiento</th><th>Talla</th></tr>
+                            </thead>
+                            <tbody>
+                                ${(team.players || []).map((p, i) => `
+                                    <tr>
+                                        <td>${i + 1}</td>
+                                        <td>${escapeHtml(p.name)}</td>
+                                        <td>${escapeHtml(p.dni)}</td>
+                                        <td>${p.birth_date}</td>
+                                        <td>${p.shirt_size}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
+
+        async function setPaymentStatus(teamId, status) {
+            const { error } = await sb.from('teams').update({ payment_status: status }).eq('id', teamId);
+            if (error) {
+                showAlert('errorAlert', 'Error al actualizar pago: ' + error.message);
+                return;
+            }
+            showAlert('successAlert', 'Estado de pago actualizado');
+            loadTeams();
+        }
+
+        async function viewProof(path) {
+            const { data, error } = await sb.storage.from('payment-proofs').createSignedUrl(path, 300);
+            if (error) {
+                showAlert('errorAlert', 'No se pudo abrir el justificante: ' + error.message);
+                return;
+            }
+            window.open(data.signedUrl, '_blank');
+        }
+
+        async function deleteTeam(teamId, proofPath) {
+            if (!confirm('¿Eliminar este equipo y todos sus datos? Esta acción no se puede deshacer.')) return;
+
+            const { error } = await sb.from('teams').delete().eq('id', teamId);
+            if (error) {
+                showAlert('errorAlert', 'Error al eliminar: ' + error.message);
+                return;
+            }
+
+            if (proofPath) {
+                await sb.storage.from('payment-proofs').remove([proofPath]);
+            }
+
+            showAlert('successAlert', 'Equipo eliminado');
+            loadTeams();
+        }
+
+        async function loadTournament() {
+            const { data } = await sb.from('tournament_state').select('*').eq('id', 1).maybeSingle();
+            const bracketDisplay = document.getElementById('bracketDisplay');
+            const resetBtn = document.getElementById('resetDrawBtn');
+            const drawBtn = document.getElementById('drawBtn');
+
+            if (!data) {
+                bracketDisplay.innerHTML = '<p style="color: var(--color-text-light); margin-top: var(--space-md);">Sorteo no realizado todavía.</p>';
+                resetBtn.style.display = 'none';
+                drawBtn.style.display = 'inline-block';
+                return;
+            }
+
+            drawBtn.style.display = 'none';
+            resetBtn.style.display = 'inline-block';
+
+            bracketDisplay.innerHTML = `
+                <div class="bracket-groups">
+                    ${['A', 'B'].map(g => `
+                        <div class="group-card">
+                            <h4>Grupo ${g}</h4>
+                            ${(data.groups[g] || []).map(t => `<div class="group-team">${escapeHtml(t.name)}</div>`).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        document.getElementById('drawBtn').addEventListener('click', async () => {
+            const { data: teams, error } = await sb.from('teams').select('id, name').order('name');
+            if (error || !teams || teams.length < 2) {
+                showAlert('errorAlert', 'Se necesitan al menos 2 equipos para sortear');
+                return;
+            }
+
+            const shuffled = [...teams].sort(() => Math.random() - 0.5);
+            const mid = Math.ceil(shuffled.length / 2);
+            const groups = { A: shuffled.slice(0, mid), B: shuffled.slice(mid) };
+
+            const { error: upsertError } = await sb.from('tournament_state').upsert({ id: 1, groups });
+            if (upsertError) {
+                showAlert('errorAlert', 'Error al guardar sorteo: ' + upsertError.message);
+                return;
+            }
+
+            showAlert('successAlert', 'Sorteo realizado correctamente');
+            loadTournament();
+        });
+
+        document.getElementById('resetDrawBtn').addEventListener('click', async () => {
+            if (!confirm('¿Reiniciar el sorteo? Se borrarán los grupos actuales.')) return;
+            const { error } = await sb.from('tournament_state').delete().eq('id', 1);
+            if (error) {
+                showAlert('errorAlert', 'Error al reiniciar: ' + error.message);
+                return;
+            }
+            showAlert('successAlert', 'Sorteo reiniciado');
+            loadTournament();
+        });
+
+        checkSession();
+    </script>
+</body>
+</html>
