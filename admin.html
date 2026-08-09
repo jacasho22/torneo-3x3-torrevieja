@@ -335,6 +335,67 @@
 
         @media (max-width: 640px) {
             .bracket-groups { grid-template-columns: 1fr; }
+
+            .container {
+                padding: var(--space-sm);
+                gap: var(--space-md);
+            }
+
+            header {
+                flex-wrap: wrap;
+                gap: var(--space-sm);
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            .section-card {
+                padding: var(--space-md);
+            }
+
+            .stats-bar {
+                gap: var(--space-sm);
+            }
+
+            .stat-pill {
+                flex: 1 1 40%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar > div {
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+
+            .action-row {
+                flex-direction: column;
+            }
+
+            .action-row .btn {
+                width: 100%;
+            }
+
+            .team-card-header {
+                flex-direction: column;
+            }
+
+            input {
+                font-size: 16px;
+            }
+
+            table {
+                font-size: 0.78rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
         }
     </style>
 </head>

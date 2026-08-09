@@ -343,12 +343,67 @@
             }
 
             h1 {
-                font-size: 1.75rem;
+                font-size: 2rem;
             }
 
             .container {
+                padding: var(--space-sm);
+                gap: var(--space-md);
+            }
+
+            header {
+                padding: var(--space-lg) 0 var(--space-md);
+            }
+
+            .form-section,
+            .teams-list,
+            .tournament-bracket {
                 padding: var(--space-md);
-                gap: var(--space-lg);
+            }
+
+            .payment-info {
+                padding: var(--space-md);
+            }
+
+            .player-fields {
+                padding: var(--space-md);
+            }
+
+            input, select, textarea {
+                font-size: 16px;
+            }
+
+            .btn {
+                min-height: 3rem;
+            }
+
+            .team-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-xs);
+            }
+
+            footer {
+                font-size: 0.8rem;
+                padding: var(--space-md) var(--space-sm);
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .badge {
+                font-size: 0.7rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .info-bar {
+                flex-direction: column;
             }
         }
 
