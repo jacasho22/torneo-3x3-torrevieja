@@ -427,7 +427,7 @@
             <div class="alert alert-error" id="errorAlert"></div>
 
             <div class="stats-bar">
-                <div class="stat-pill"><strong id="statTotal">0</strong>Equipos</div>
+                <div class="stat-pill"><strong id="statTotal">0</strong>Equipos (máx. 12)</div>
                 <div class="stat-pill"><strong id="statPaid">0</strong>Pagados</div>
                 <div class="stat-pill"><strong id="statPending">0</strong>Pendientes</div>
                 <div class="stat-pill"><strong id="statPlayers">0</strong>Jugadores</div>
@@ -576,7 +576,7 @@
                     <div class="overflow-x">
                         <table>
                             <thead>
-                                <tr><th>#</th><th>Nombre</th><th>DNI</th><th>Nacimiento</th><th>Talla</th></tr>
+                                <tr><th>#</th><th>Nombre</th><th>DNI</th><th>Nacimiento</th><th>Talla 1ª</th><th>Talla 2ª</th></tr>
                             </thead>
                             <tbody>
                                 ${(team.players || []).map((p, i) => `
@@ -586,6 +586,7 @@
                                         <td>${escapeHtml(p.dni)}</td>
                                         <td>${p.birth_date}</td>
                                         <td>${p.shirt_size}</td>
+                                        <td>${p.shirt_size_2 || '—'}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>

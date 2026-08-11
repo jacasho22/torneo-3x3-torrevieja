@@ -429,12 +429,17 @@
             border-radius: var(--radius-lg);
         }
 
-        .payment-info strong {
+        .payment-info > strong {
             font-family: var(--font-display);
             color: var(--color-success);
             display: block;
             margin-bottom: var(--space-sm);
             font-size: 1.1rem;
+        }
+
+        .payment-info p strong {
+            color: var(--color-text);
+            font-weight: 700;
         }
 
         .payment-info p {
@@ -559,7 +564,7 @@
             <div class="info-bar">
                 <div>
                     <strong>📍 Pabellón Cecilio Gallego</strong>
-                    Inscripciones abiertas. ¡Forma tu equipo de 3 o 4 jugadores!
+                    Inscripciones abiertas. ¡Forma tu equipo de 3 o 4 jugadores! Plazas limitadas a 12 equipos.
                 </div>
             </div>
         </header>
@@ -572,6 +577,16 @@
                 <strong>💳 Forma de Pago</strong>
                 <p>Transferencia Bancaria: 15€ por jugador</p>
                 <p>IBAN: <strong>ES76 3005 0024 7821 4589 6722</strong></p>
+            </div>
+
+            <div class="payment-info" style="border-color: var(--color-warning); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(255, 107, 53, 0.05));">
+                <strong style="color: var(--color-warning);">👕 Plazo de Camisetas</strong>
+                <p>El pedido de camisetas del Welcome Pack se cierra el <strong>12 de agosto de 2026</strong>. Inscríbete antes de esa fecha para asegurar tu talla — las cantidades por talla son limitadas.</p>
+            </div>
+
+            <div id="capacityFullMessage" class="payment-info" style="display: none; border-color: var(--color-error); background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(255, 107, 53, 0.05));">
+                <strong style="color: var(--color-error);">🚫 Cupo Completo</strong>
+                <p>Se ha alcanzado el máximo de 12 equipos inscritos. Contacta con <a href="mailto:patrocinios@baloncestotorrevieja.com">patrocinios@baloncestotorrevieja.com</a> para lista de espera.</p>
             </div>
 
             <form class="form-section" id="teamForm">
@@ -663,6 +678,7 @@
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const shirtsizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        const MAX_TEAMS = 12;
 
         function updatePlayerFields() {
             const count = document.getElementById('playerCount').value;
@@ -692,21 +708,32 @@
                             <div class="error-message">DNI requerido</div>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row full">
                         <div class="form-group">
                             <label for="playerBirth${i}">Fecha de Nacimiento *</label>
                             <input type="date" id="playerBirth${i}" name="playerBirth${i}" required>
                             <div class="error-message">Fecha de nacimiento requerida</div>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="playerShirt${i}">Talla Camiseta Welcome Pack *</label>
+                            <label for="playerShirt${i}">Talla Camiseta (1ª opción) *</label>
                             <select id="playerShirt${i}" name="playerShirt${i}" required>
                                 <option value="">Selecciona...</option>
                                 ${shirtsizes.map(s => `<option value="${s}">${s}</option>`).join('')}
                             </select>
                             <div class="error-message">Talla requerida</div>
                         </div>
+                        <div class="form-group">
+                            <label for="playerShirt2_${i}">Talla Camiseta (2ª opción) *</label>
+                            <select id="playerShirt2_${i}" name="playerShirt2_${i}" required>
+                                <option value="">Selecciona...</option>
+                                ${shirtsizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+                            </select>
+                            <div class="error-message">Talla alternativa requerida</div>
+                        </div>
                     </div>
+                    <small style="color: var(--color-text-light); display: block; margin-top: -0.5rem; margin-bottom: var(--space-sm);">Las tallas son limitadas. Pide una 2ª opción por si tu 1ª no está disponible.</small>
                 `;
 
                 section.appendChild(playerDiv);
@@ -739,11 +766,14 @@
                 const dni = document.getElementById(`playerDNI${i}`).value.trim();
                 const birth = document.getElementById(`playerBirth${i}`).value;
                 const shirt = document.getElementById(`playerShirt${i}`).value;
+                const shirt2 = document.getElementById(`playerShirt2_${i}`).value;
 
                 if (!name) { valid = false; errors.push(`Nombre del jugador ${i} es requerido`); }
                 if (!dni) { valid = false; errors.push(`DNI del jugador ${i} es requerido`); }
                 if (!birth) { valid = false; errors.push(`Fecha de nacimiento del jugador ${i} es requerida`); }
-                if (!shirt) { valid = false; errors.push(`Talla de camiseta del jugador ${i} es requerida`); }
+                if (!shirt) { valid = false; errors.push(`Talla de camiseta (1ª opción) del jugador ${i} es requerida`); }
+                if (!shirt2) { valid = false; errors.push(`Talla de camiseta (2ª opción) del jugador ${i} es requerida`); }
+                if (shirt && shirt2 && shirt === shirt2) { valid = false; errors.push(`La 2ª opción de talla del jugador ${i} debe ser distinta de la 1ª`); }
             }
 
             return { valid, errors };
@@ -786,7 +816,8 @@
                     name: formData.get(`playerName${i}`),
                     dni: formData.get(`playerDNI${i}`),
                     birth_date: formData.get(`playerBirth${i}`),
-                    shirt_size: formData.get(`playerShirt${i}`)
+                    shirt_size: formData.get(`playerShirt${i}`),
+                    shirt_size_2: formData.get(`playerShirt2_${i}`)
                 });
             }
 
@@ -803,6 +834,8 @@
                 return;
             }
 
+            updateCapacityUI(data ? data.length : 0);
+
             if (!data || data.length === 0) {
                 list.innerHTML = '<div class="empty-state"><p>Aún no hay equipos inscritos.</p></div>';
                 return;
@@ -814,6 +847,30 @@
                     <div class="team-count">${team.player_count} jugador${team.player_count === 1 ? '' : 'es'}</div>
                 </div>
             `).join('');
+        }
+
+        function updateCapacityUI(count) {
+            const form = document.getElementById('teamForm');
+            const fullMsg = document.getElementById('capacityFullMessage');
+            const teamsListH2 = document.querySelector('.teams-list h2');
+
+            if (teamsListH2) {
+                teamsListH2.textContent = `Equipos inscritos (${count}/${MAX_TEAMS})`;
+            }
+
+            if (count >= MAX_TEAMS) {
+                form.style.display = 'none';
+                fullMsg.style.display = 'block';
+            } else {
+                form.style.display = 'flex';
+                fullMsg.style.display = 'none';
+            }
+        }
+
+        async function getTeamCount() {
+            const { count, error } = await sb.from('teams_public').select('*', { count: 'exact', head: true });
+            if (error) return 0;
+            return count || 0;
         }
 
         async function renderTournament() {
@@ -850,6 +907,13 @@
             submitBtn.textContent = 'Inscribiendo...';
 
             try {
+                const currentCount = await getTeamCount();
+                if (currentCount >= MAX_TEAMS) {
+                    showAlert('Cupo completo justo ahora. Contacta con patrocinios@baloncestotorrevieja.com para lista de espera.', 'error');
+                    updateCapacityUI(currentCount);
+                    return;
+                }
+
                 const formData = new FormData(e.target);
                 await saveTeam(formData);
                 e.target.reset();
