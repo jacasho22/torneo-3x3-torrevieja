@@ -646,7 +646,7 @@
                 <button type="submit" class="btn btn-secondary" id="submitBtn">Inscribir equipo</button>
             </form>
 
-            <div class="teams-list">
+            <div class="teams-list" id="teamsListSection" style="display: none;">
                 <h2>Equipos inscritos</h2>
                 <div id="teamsList">
                     <div class="empty-state">
@@ -928,6 +928,13 @@
             }
         });
 
+        async function applyTeamsListVisibility() {
+            const { data, error } = await sb.from('site_settings').select('show_teams_list').eq('id', 1).maybeSingle();
+            const visible = !error && data && data.show_teams_list;
+            document.getElementById('teamsListSection').style.display = visible ? 'block' : 'none';
+        }
+
+        applyTeamsListVisibility();
         renderTeams();
         renderTournament();
     </script>

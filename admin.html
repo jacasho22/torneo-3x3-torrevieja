@@ -435,6 +435,14 @@
 
             <div class="section-card">
                 <div class="toolbar">
+                    <h2 style="font-family: var(--font-display); color: var(--color-secondary);">Visibilidad Pública</h2>
+                    <button class="btn btn-secondary" id="toggleVisibilityBtn">Mostrar Equipos al Público</button>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--color-text-light);" id="visibilityStatus">Cargando estado...</p>
+            </div>
+
+            <div class="section-card">
+                <div class="toolbar">
                     <h2 style="font-family: var(--font-display); color: var(--color-secondary);">Sorteo del Torneo</h2>
                     <div style="display:flex; gap: var(--space-sm);">
                         <button class="btn btn-secondary" id="drawBtn">Cerrar Inscripciones y Sortear</button>
@@ -485,7 +493,39 @@
             document.getElementById('logoutBtn').style.display = 'inline-block';
             loadTeams();
             loadTournament();
+            loadVisibility();
         }
+
+        async function loadVisibility() {
+            const { data, error } = await sb.from('site_settings').select('show_teams_list').eq('id', 1).maybeSingle();
+            const btn = document.getElementById('toggleVisibilityBtn');
+            const status = document.getElementById('visibilityStatus');
+
+            if (error || !data) {
+                status.textContent = 'No se pudo cargar el estado.';
+                return;
+            }
+
+            if (data.show_teams_list) {
+                btn.textContent = 'Ocultar Equipos al Público';
+                status.textContent = '✅ La lista de equipos inscritos es visible en la web pública.';
+            } else {
+                btn.textContent = 'Mostrar Equipos al Público';
+                status.textContent = '🔒 La lista de equipos inscritos está oculta para el público.';
+            }
+        }
+
+        document.getElementById('toggleVisibilityBtn').addEventListener('click', async () => {
+            const { data } = await sb.from('site_settings').select('show_teams_list').eq('id', 1).maybeSingle();
+            const newValue = !(data && data.show_teams_list);
+            const { error } = await sb.from('site_settings').update({ show_teams_list: newValue }).eq('id', 1);
+            if (error) {
+                showAlert('errorAlert', 'Error al actualizar visibilidad: ' + error.message);
+                return;
+            }
+            showAlert('successAlert', newValue ? 'Equipos ahora visibles al público' : 'Equipos ahora ocultos al público');
+            loadVisibility();
+        });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
