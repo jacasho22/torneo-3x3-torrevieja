@@ -824,6 +824,16 @@
 
             const { error: playersError } = await sb.from('players').insert(players);
             if (playersError) throw playersError;
+
+            return teamId;
+        }
+
+        function notifyTeamRegistration(teamId) {
+            fetch('/api/notify-team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId })
+            }).catch(() => {});
         }
 
         async function renderTeams() {
@@ -916,11 +926,12 @@
                 }
 
                 const formData = new FormData(e.target);
-                await saveTeam(formData);
+                const newTeamId = await saveTeam(formData);
                 e.target.reset();
                 document.getElementById('playersContainer').innerHTML = '';
                 showAlert(`¡Equipo "${formData.get('teamName')}" inscrito correctamente!`);
                 renderTeams();
+                notifyTeamRegistration(newTeamId);
             } catch (err) {
                 showAlert('Error al inscribir: ' + err.message, 'error');
             } finally {
