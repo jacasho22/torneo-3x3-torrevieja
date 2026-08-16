@@ -512,6 +512,19 @@
             </div>
 
             <div class="section-card">
+                <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2); margin-bottom: var(--space-md);">Stock de camisetas</h2>
+                <p style="font-size: var(--text-sm); color: var(--color-neutral); margin-bottom: var(--space-md);">"Pedida 1ª" cuenta jugadores que marcaron esa talla como primera opción. Edita el stock inicial para reservar camisetas de patrocinio o descontar unidades ya comprometidas.</p>
+                <div class="overflow-x">
+                    <table>
+                        <thead>
+                            <tr><th>Talla</th><th>Stock inicial</th><th>Pedida 1ª</th><th>Restante</th><th></th></tr>
+                        </thead>
+                        <tbody id="stockTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section-card">
                 <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2); margin-bottom: var(--space-md);">Equipos inscritos</h2>
                 <div id="teamsList"></div>
             </div>
@@ -625,6 +638,62 @@
 
             renderStats(teams);
             renderTeamsList(teams);
+            renderStock(teams);
+        }
+
+        async function renderStock(teams) {
+            const { data: stock, error } = await sb.from('shirt_stock').select('*').order('size');
+            const tbody = document.getElementById('stockTableBody');
+
+            if (error || !stock) {
+                tbody.innerHTML = '<tr><td colspan="5">No se pudo cargar el stock.</td></tr>';
+                return;
+            }
+
+            const requested = {};
+            teams.forEach(t => (t.players || []).forEach(p => {
+                if (p.shirt_size) requested[p.shirt_size] = (requested[p.shirt_size] || 0) + 1;
+            }));
+
+            const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+            const sorted = [...stock].sort((a, b) => order.indexOf(a.size) - order.indexOf(b.size));
+
+            tbody.innerHTML = sorted.map(s => {
+                const req = requested[s.size] || 0;
+                const remaining = s.quantity - req;
+                const color = remaining < 0 ? 'var(--color-error)' : remaining <= 2 ? 'var(--color-warning)' : 'var(--color-ink)';
+                return `
+                    <tr>
+                        <td>${s.size}</td>
+                        <td>
+                            <input type="number" min="0" value="${s.quantity}" id="stockInput_${s.size}"
+                                style="width: 5rem; padding: 0.4rem 0.6rem; border: 1px solid var(--color-rule); border-radius: var(--radius); font-family: var(--font-mono); font-variant-numeric: tabular-nums;">
+                        </td>
+                        <td>${req}</td>
+                        <td style="color: ${color}; font-weight: 600;">${remaining}</td>
+                        <td><button class="btn btn-secondary btn-sm" onclick="saveStock('${s.size}')">Guardar</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function saveStock(size) {
+            const input = document.getElementById(`stockInput_${size}`);
+            const value = parseInt(input.value);
+
+            if (isNaN(value) || value < 0) {
+                showAlert('errorAlert', 'Cantidad no válida');
+                return;
+            }
+
+            const { error } = await sb.from('shirt_stock').update({ quantity: value }).eq('size', size);
+            if (error) {
+                showAlert('errorAlert', 'Error al actualizar stock: ' + error.message);
+                return;
+            }
+
+            showAlert('successAlert', `Stock de talla ${size} actualizado a ${value}`);
+            loadTeams();
         }
 
         function renderStats(teams) {
