@@ -486,7 +486,7 @@
             <div class="alert alert-error" id="errorAlert"></div>
 
             <div class="stats-bar">
-                <div class="stat-pill"><strong id="statTotal">0</strong>Equipos (máx. 12)</div>
+                <div class="stat-pill"><strong id="statTotal">0</strong>Equipos (máx. 6)</div>
                 <div class="stat-pill"><strong id="statPaid">0</strong>Pagados</div>
                 <div class="stat-pill"><strong id="statPending">0</strong>Pendientes</div>
                 <div class="stat-pill"><strong id="statPlayers">0</strong>Jugadores</div>
@@ -502,13 +502,51 @@
 
             <div class="section-card">
                 <div class="toolbar">
-                    <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2);">Sorteo del torneo</h2>
+                    <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2);">Liguilla</h2>
                     <div style="display:flex; gap: var(--space-sm);">
-                        <button class="btn btn-secondary" id="drawBtn">Cerrar inscripciones y sortear</button>
-                        <button class="btn btn-danger" id="resetDrawBtn" style="display:none;">Reiniciar sorteo</button>
+                        <button class="btn btn-secondary" id="generateLeagueBtn">Generar liguilla (todos contra todos)</button>
+                        <button class="btn btn-danger" id="resetLeagueBtn" style="display:none;">Reiniciar torneo completo</button>
                     </div>
                 </div>
-                <div id="bracketDisplay"></div>
+                <div id="leagueInfo"></div>
+
+                <div id="standingsBox" style="display:none; margin-top: var(--space-lg);">
+                    <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-sm); color: var(--color-ink);">Clasificación</h3>
+                    <div class="overflow-x">
+                        <table>
+                            <thead>
+                                <tr><th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PP</th><th>PF</th><th>PC</th><th>Dif</th></tr>
+                            </thead>
+                            <tbody id="standingsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="leagueMatchesBox" style="display:none; margin-top: var(--space-lg);">
+                    <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-sm); color: var(--color-ink);">Calendario de la liguilla</h3>
+                    <div id="leagueMatchesList"></div>
+                </div>
+
+                <div id="semifinalsBox" style="display:none; margin-top: var(--space-lg);">
+                    <div class="toolbar">
+                        <h3 style="font-family: var(--font-display); font-weight: 700; color: var(--color-ink);">Semifinales</h3>
+                        <button class="btn btn-secondary btn-sm" id="generateSemisBtn" style="display:none;">Generar semifinales</button>
+                    </div>
+                    <div id="semifinalsList"></div>
+                </div>
+
+                <div id="finalBox" style="display:none; margin-top: var(--space-lg);">
+                    <div class="toolbar">
+                        <h3 style="font-family: var(--font-display); font-weight: 700; color: var(--color-ink);">Final</h3>
+                        <button class="btn btn-secondary btn-sm" id="generateFinalBtn" style="display:none;">Generar final</button>
+                    </div>
+                    <div id="finalMatchBox"></div>
+                </div>
+
+                <div id="championBox" style="display:none; margin-top: var(--space-lg); text-align:center; padding: var(--space-lg); background: var(--color-paper-2); border-radius: var(--radius);">
+                    <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--color-ink-2);" id="championName"></div>
+                    <div style="font-size: var(--text-sm); color: var(--color-neutral); text-transform: uppercase; letter-spacing: 0.06em;">Campeón del torneo</div>
+                </div>
             </div>
 
             <div class="section-card">
@@ -564,7 +602,7 @@
             document.getElementById('adminSection').style.display = 'block';
             document.getElementById('logoutBtn').style.display = 'inline-block';
             loadTeams();
-            loadTournament();
+            loadLeague();
             loadVisibility();
         }
 
@@ -806,64 +844,262 @@
             loadTeams();
         }
 
-        async function loadTournament() {
-            const { data } = await sb.from('tournament_state').select('*').eq('id', 1).maybeSingle();
-            const bracketDisplay = document.getElementById('bracketDisplay');
-            const resetBtn = document.getElementById('resetDrawBtn');
-            const drawBtn = document.getElementById('drawBtn');
+        const LEAGUE_TEAM_COUNT = 6;
 
-            if (!data) {
-                bracketDisplay.innerHTML = '<p style="color: var(--color-neutral); margin-top: var(--space-md);">Sorteo no realizado todavía.</p>';
-                resetBtn.style.display = 'none';
-                drawBtn.style.display = 'inline-block';
+        function roundRobinPairs(n) {
+            const idx = Array.from({ length: n }, (_, i) => i);
+            const fixed = idx[0];
+            let rotating = idx.slice(1);
+            const rounds = [];
+            for (let r = 0; r < n - 1; r++) {
+                const current = [fixed, ...rotating];
+                const round = [];
+                for (let i = 0; i < n / 2; i++) {
+                    round.push([current[i], current[n - 1 - i]]);
+                }
+                rounds.push(round);
+                rotating.push(rotating.shift());
+            }
+            return rounds;
+        }
+
+        document.getElementById('generateLeagueBtn').addEventListener('click', async () => {
+            const { data: teams, error } = await sb.from('teams').select('id, name');
+            if (error) {
+                showAlert('errorAlert', 'Error al cargar equipos: ' + error.message);
+                return;
+            }
+            if (!teams || teams.length !== LEAGUE_TEAM_COUNT) {
+                showAlert('errorAlert', `La liguilla requiere exactamente ${LEAGUE_TEAM_COUNT} equipos (hay ${teams ? teams.length : 0}).`);
                 return;
             }
 
-            drawBtn.style.display = 'none';
-            resetBtn.style.display = 'inline-block';
-
-            bracketDisplay.innerHTML = `
-                <div class="bracket-groups">
-                    ${['A', 'B'].map(g => `
-                        <div class="group-card">
-                            <h4>Grupo ${g}</h4>
-                            ${(data.groups[g] || []).map(t => `<div class="group-team">${escapeHtml(t.name)}</div>`).join('')}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        document.getElementById('drawBtn').addEventListener('click', async () => {
-            const { data: teams, error } = await sb.from('teams').select('id, name').order('name');
-            if (error || !teams || teams.length < 2) {
-                showAlert('errorAlert', 'Se necesitan al menos 2 equipos para sortear');
+            const { count } = await sb.from('matches').select('*', { count: 'exact', head: true }).eq('phase', 'liguilla');
+            if (count && count > 0) {
+                showAlert('errorAlert', 'La liguilla ya fue generada. Reinicia el torneo si quieres rehacerla.');
                 return;
             }
 
             const shuffled = [...teams].sort(() => Math.random() - 0.5);
-            const mid = Math.ceil(shuffled.length / 2);
-            const groups = { A: shuffled.slice(0, mid), B: shuffled.slice(mid) };
+            const rounds = roundRobinPairs(LEAGUE_TEAM_COUNT);
+            const rows = [];
+            let order = 0;
+            rounds.forEach(round => {
+                round.forEach(([i, j]) => {
+                    order++;
+                    rows.push({
+                        phase: 'liguilla',
+                        match_order: order,
+                        team1_id: shuffled[i].id,
+                        team2_id: shuffled[j].id,
+                        team1_name: shuffled[i].name,
+                        team2_name: shuffled[j].name,
+                        status: 'pending'
+                    });
+                });
+            });
 
-            const { error: upsertError } = await sb.from('tournament_state').upsert({ id: 1, groups });
-            if (upsertError) {
-                showAlert('errorAlert', 'Error al guardar sorteo: ' + upsertError.message);
+            const { error: insertError } = await sb.from('matches').insert(rows);
+            if (insertError) {
+                showAlert('errorAlert', 'Error al generar liguilla: ' + insertError.message);
                 return;
             }
 
-            showAlert('successAlert', 'Sorteo realizado correctamente');
-            loadTournament();
+            showAlert('successAlert', 'Liguilla generada: 15 partidos programados');
+            loadLeague();
         });
 
-        document.getElementById('resetDrawBtn').addEventListener('click', async () => {
-            if (!confirm('¿Reiniciar el sorteo? Se borrarán los grupos actuales.')) return;
-            const { error } = await sb.from('tournament_state').delete().eq('id', 1);
+        document.getElementById('resetLeagueBtn').addEventListener('click', async () => {
+            if (!confirm('¿Reiniciar TODO el torneo (liguilla, semifinales y final)? Esta acción no se puede deshacer.')) return;
+            const { error } = await sb.from('matches').delete().neq('id', '00000000-0000-0000-0000-000000000000');
             if (error) {
                 showAlert('errorAlert', 'Error al reiniciar: ' + error.message);
                 return;
             }
-            showAlert('successAlert', 'Sorteo reiniciado');
-            loadTournament();
+            showAlert('successAlert', 'Torneo reiniciado');
+            loadLeague();
+        });
+
+        function computeStandings(leagueMatches, teams) {
+            const table = {};
+            teams.forEach(t => {
+                table[t.id] = { id: t.id, name: t.name, played: 0, wins: 0, losses: 0, pf: 0, pc: 0 };
+            });
+
+            leagueMatches.filter(m => m.status === 'completed').forEach(m => {
+                const t1 = table[m.team1_id];
+                const t2 = table[m.team2_id];
+                if (!t1 || !t2) return;
+                t1.played++; t2.played++;
+                t1.pf += m.team1_score || 0; t1.pc += m.team2_score || 0;
+                t2.pf += m.team2_score || 0; t2.pc += m.team1_score || 0;
+                if (m.winner_id === t1.id) { t1.wins++; t2.losses++; }
+                else if (m.winner_id === t2.id) { t2.wins++; t1.losses++; }
+            });
+
+            return Object.values(table).sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                const diffA = a.pf - a.pc, diffB = b.pf - b.pc;
+                if (diffB !== diffA) return diffB - diffA;
+                return b.pf - a.pf;
+            });
+        }
+
+        function renderMatchRow(m) {
+            const statusLabel = m.status === 'completed'
+                ? `<strong>${m.team1_score} - ${m.team2_score}</strong>`
+                : '<span style="color: var(--color-neutral);">Pendiente</span>';
+            const winnerNote = m.status === 'completed'
+                ? `<div style="font-size: var(--text-xs); color: var(--color-success);">Gana: ${escapeHtml(m.winner_id === m.team1_id ? m.team1_name : m.team2_name)}</div>`
+                : '';
+            const openBtn = m.status === 'pending'
+                ? `<a class="btn btn-secondary btn-sm" href="marcador.html?match=${m.id}" target="_blank">Abrir marcador</a>`
+                : '';
+            return `
+                <div class="team-card" style="padding: var(--space-md); margin-bottom: var(--space-sm);">
+                    <div style="display:flex; justify-content: space-between; align-items:center; gap: var(--space-md); flex-wrap: wrap;">
+                        <div>
+                            <strong>${escapeHtml(m.team1_name)}</strong> vs <strong>${escapeHtml(m.team2_name)}</strong>
+                            ${winnerNote}
+                        </div>
+                        <div style="display:flex; align-items:center; gap: var(--space-md);">
+                            ${statusLabel}
+                            ${openBtn}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadLeague() {
+            const { data: teams } = await sb.from('teams').select('id, name');
+            const { data: matches, error } = await sb.from('matches').select('*').order('match_order');
+
+            const info = document.getElementById('leagueInfo');
+            const generateBtn = document.getElementById('generateLeagueBtn');
+            const resetBtn = document.getElementById('resetLeagueBtn');
+
+            if (error) {
+                info.innerHTML = '<p style="color: var(--color-error);">Error al cargar el torneo.</p>';
+                return;
+            }
+
+            if (!matches || matches.length === 0) {
+                info.innerHTML = `<p style="color: var(--color-neutral); margin-top: var(--space-md);">Liguilla no generada todavía. Requiere exactamente ${LEAGUE_TEAM_COUNT} equipos inscritos (hay ${teams ? teams.length : 0}).</p>`;
+                generateBtn.style.display = (teams && teams.length === LEAGUE_TEAM_COUNT) ? 'inline-block' : 'none';
+                resetBtn.style.display = 'none';
+                document.getElementById('standingsBox').style.display = 'none';
+                document.getElementById('leagueMatchesBox').style.display = 'none';
+                document.getElementById('semifinalsBox').style.display = 'none';
+                document.getElementById('finalBox').style.display = 'none';
+                document.getElementById('championBox').style.display = 'none';
+                return;
+            }
+
+            info.innerHTML = '';
+            generateBtn.style.display = 'none';
+            resetBtn.style.display = 'inline-block';
+
+            const leagueMatches = matches.filter(m => m.phase === 'liguilla');
+            const semiMatches = matches.filter(m => m.phase === 'semifinal');
+            const finalMatches = matches.filter(m => m.phase === 'final');
+
+            const standings = computeStandings(leagueMatches, teams || []);
+            document.getElementById('standingsBox').style.display = 'block';
+            document.getElementById('standingsBody').innerHTML = standings.map((t, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td style="font-family: var(--font-body);">${escapeHtml(t.name)}</td>
+                    <td>${t.played}</td>
+                    <td>${t.wins}</td>
+                    <td>${t.losses}</td>
+                    <td>${t.pf}</td>
+                    <td>${t.pc}</td>
+                    <td>${t.pf - t.pc > 0 ? '+' : ''}${t.pf - t.pc}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('leagueMatchesBox').style.display = 'block';
+            document.getElementById('leagueMatchesList').innerHTML = leagueMatches.map(renderMatchRow).join('');
+
+            const leagueComplete = leagueMatches.length > 0 && leagueMatches.every(m => m.status === 'completed');
+
+            document.getElementById('semifinalsBox').style.display = leagueComplete || semiMatches.length > 0 ? 'block' : 'none';
+            const genSemisBtn = document.getElementById('generateSemisBtn');
+            if (leagueComplete && semiMatches.length === 0) {
+                genSemisBtn.style.display = 'inline-block';
+                document.getElementById('semifinalsList').innerHTML = '<p style="color: var(--color-neutral);">Liguilla completa. Genera las semifinales cuando quieras.</p>';
+            } else {
+                genSemisBtn.style.display = 'none';
+                document.getElementById('semifinalsList').innerHTML = semiMatches.map(renderMatchRow).join('');
+            }
+
+            const semisComplete = semiMatches.length === 2 && semiMatches.every(m => m.status === 'completed');
+            document.getElementById('finalBox').style.display = semisComplete || finalMatches.length > 0 ? 'block' : 'none';
+            const genFinalBtn = document.getElementById('generateFinalBtn');
+            if (semisComplete && finalMatches.length === 0) {
+                genFinalBtn.style.display = 'inline-block';
+                document.getElementById('finalMatchBox').innerHTML = '<p style="color: var(--color-neutral);">Semifinales completas. Genera la final cuando quieras.</p>';
+            } else {
+                genFinalBtn.style.display = 'none';
+                document.getElementById('finalMatchBox').innerHTML = finalMatches.map(renderMatchRow).join('');
+            }
+
+            const championBox = document.getElementById('championBox');
+            if (finalMatches.length === 1 && finalMatches[0].status === 'completed') {
+                const f = finalMatches[0];
+                const championName = f.winner_id === f.team1_id ? f.team1_name : f.team2_name;
+                document.getElementById('championName').textContent = championName;
+                championBox.style.display = 'block';
+            } else {
+                championBox.style.display = 'none';
+            }
+
+            window._standings = standings;
+        }
+
+        document.getElementById('generateSemisBtn').addEventListener('click', async () => {
+            const standings = window._standings || [];
+            if (standings.length < 4) {
+                showAlert('errorAlert', 'No hay suficiente clasificación para generar semifinales');
+                return;
+            }
+            const [s1, s2, s3, s4] = standings;
+            const rows = [
+                { phase: 'semifinal', match_order: 1, team1_id: s1.id, team2_id: s4.id, team1_name: s1.name, team2_name: s4.name, status: 'pending' },
+                { phase: 'semifinal', match_order: 2, team1_id: s2.id, team2_id: s3.id, team1_name: s2.name, team2_name: s3.name, status: 'pending' }
+            ];
+            const { error } = await sb.from('matches').insert(rows);
+            if (error) {
+                showAlert('errorAlert', 'Error al generar semifinales: ' + error.message);
+                return;
+            }
+            showAlert('successAlert', 'Semifinales generadas: 1º vs 4º y 2º vs 3º');
+            loadLeague();
+        });
+
+        document.getElementById('generateFinalBtn').addEventListener('click', async () => {
+            const { data: matches, error } = await sb.from('matches').select('*').eq('phase', 'semifinal');
+            if (error || !matches || matches.length !== 2) {
+                showAlert('errorAlert', 'No se encontraron las semifinales completas');
+                return;
+            }
+            const getWinner = (m) => m.winner_id === m.team1_id ? { id: m.team1_id, name: m.team1_name } : { id: m.team2_id, name: m.team2_name };
+            const w1 = getWinner(matches.find(m => m.match_order === 1));
+            const w2 = getWinner(matches.find(m => m.match_order === 2));
+
+            const { error: insertError } = await sb.from('matches').insert([{
+                phase: 'final', match_order: 1,
+                team1_id: w1.id, team2_id: w2.id,
+                team1_name: w1.name, team2_name: w2.name,
+                status: 'pending'
+            }]);
+            if (insertError) {
+                showAlert('errorAlert', 'Error al generar la final: ' + insertError.message);
+                return;
+            }
+            showAlert('successAlert', 'Final generada');
+            loadLeague();
         });
 
         checkSession();

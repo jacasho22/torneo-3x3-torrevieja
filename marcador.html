@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador | Open 3x3 Torrevieja</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --color-paper:      oklch(97% 0.012 55);
+            --color-paper-2:    oklch(94% 0.014 55);
+            --color-ink:        oklch(19% 0.014 55);
+            --color-ink-2:      oklch(28% 0.05 250);
+            --color-rule:       oklch(84% 0.014 55);
+            --color-neutral:    oklch(50% 0.01 55);
+            --color-accent:     oklch(62% 0.19 38);
+            --color-accent-ink: oklch(98% 0.01 38);
+            --color-success:    oklch(58% 0.14 155);
+            --color-warning:    oklch(66% 0.15 75);
+            --color-error:      oklch(56% 0.19 25);
+            --color-focus:      oklch(62% 0.19 38);
+
+            --font-display: 'Big Shoulders Display', ui-sans-serif, sans-serif;
+            --font-body:    'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+            --font-mono:    'Geist Mono', ui-monospace, monospace;
+
+            --space-3xs: 0.125rem; --space-2xs: 0.25rem; --space-xs: 0.5rem;
+            --space-sm:  0.75rem;  --space-md:  1rem;    --space-lg: 1.5rem;
+            --space-xl:  2.5rem;   --space-2xl: 4rem;
+
+            --radius: 4px; --radius-lg: 6px;
+        }
+
+        html { overflow-x: clip; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            overflow-x: clip;
+            font-family: var(--font-body);
+            background-color: var(--color-ink);
+            color: var(--color-paper);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 60rem;
+            margin: 0 auto;
+            padding: var(--space-lg) var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        #loginSection {
+            max-width: 26rem;
+            margin: var(--space-2xl) auto;
+            width: 100%;
+            padding: var(--space-xl);
+            background: var(--color-paper);
+            color: var(--color-ink);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        #loginSection h2 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: var(--space-xs); }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-ink-2);
+        }
+
+        input {
+            padding: 0.8rem var(--space-sm);
+            border: 1px solid var(--color-rule);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .btn {
+            padding: 0.8rem var(--space-lg);
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            border: 1px solid transparent;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary { background: var(--color-ink-2); color: white; }
+        .btn-accent { background: var(--color-accent); color: white; }
+        .btn-ghost { background: transparent; border-color: var(--color-rule); color: var(--color-neutral); }
+        .btn-danger { background: transparent; border-color: var(--color-error); color: var(--color-error); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #scoreboardSection { display: none; }
+
+        .alert {
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            display: none;
+            border: 1px solid;
+        }
+        .alert.show { display: block; }
+        .alert-error { background: oklch(56% 0.19 25 / 0.15); color: oklch(80% 0.1 25); border-color: var(--color-error); }
+        .alert-success { background: oklch(58% 0.14 155 / 0.15); color: oklch(80% 0.1 155); border-color: var(--color-success); }
+
+        .clocks-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-2xl);
+            flex-wrap: wrap;
+        }
+
+        .clock-block { text-align: center; }
+
+        .clock-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-neutral);
+            margin-bottom: var(--space-2xs);
+        }
+
+        .game-clock {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .game-clock.warning { color: var(--color-warning); }
+        .game-clock.danger { color: var(--color-error); }
+
+        .shot-clock {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--color-accent);
+        }
+
+        .shot-clock.danger { color: var(--color-error); }
+
+        .clock-controls {
+            display: flex;
+            gap: var(--space-xs);
+            justify-content: center;
+            margin-top: var(--space-sm);
+        }
+
+        .teams-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-lg);
+            align-items: start;
+        }
+
+        .team-panel {
+            background: var(--color-paper-2);
+            color: var(--color-ink);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .team-name {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.4rem;
+            overflow-wrap: anywhere;
+        }
+
+        .team-score {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-buttons {
+            display: flex;
+            gap: var(--space-xs);
+            justify-content: center;
+        }
+
+        .score-buttons .btn {
+            flex: 1;
+            font-family: var(--font-mono);
+        }
+
+        .fouls-block {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2xs);
+            align-items: center;
+            padding-top: var(--space-sm);
+            border-top: 1px solid var(--color-rule);
+        }
+
+        .fouls-count {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .fouls-buttons { display: flex; gap: var(--space-xs); }
+
+        .badge-pill {
+            display: none;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            background: var(--color-warning);
+            color: var(--color-ink);
+        }
+        .badge-pill.show { display: inline-block; }
+        .badge-pill.penalty { background: var(--color-error); color: white; }
+
+        .vs-label {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--color-neutral);
+            align-self: center;
+            padding-top: 4rem;
+        }
+
+        .timeout-btn { width: 100%; }
+        .timeout-btn.used { opacity: 0.4; }
+
+        .banner {
+            display: none;
+            text-align: center;
+            padding: var(--space-md);
+            background: var(--color-accent);
+            color: white;
+            border-radius: var(--radius);
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.25rem;
+        }
+        .banner.show { display: block; }
+
+        .actions-row {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        #finishModal, #confirmWinnerModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #finishModal.show, #confirmWinnerModal.show { display: flex; }
+
+        .modal-box {
+            background: var(--color-paper);
+            color: var(--color-ink);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            max-width: 28rem;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .modal-box h3 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.25rem;
+        }
+
+        .winner-choice {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .winner-choice button {
+            padding: var(--space-md);
+            border: 2px solid var(--color-rule);
+            border-radius: var(--radius);
+            background: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .winner-choice button.selected {
+            border-color: var(--color-accent);
+            background: oklch(62% 0.19 38 / 0.08);
+        }
+
+        @media (max-width: 640px) {
+            .teams-row { grid-template-columns: 1fr; }
+            .vs-label { padding-top: 0; }
+            .team-score { font-size: 3.5rem; }
+            .game-clock { font-size: 2.75rem; }
+            .clocks-row { gap: var(--space-lg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section id="loginSection">
+            <h2>Acceso privado</h2>
+            <div class="alert alert-error" id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required autocomplete="username">
+                </div>
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Entrar</button>
+            </form>
+        </section>
+
+        <section id="scoreboardSection">
+            <div class="alert alert-error" id="errorAlert"></div>
+            <div class="alert alert-success" id="successAlert"></div>
+
+            <div class="banner" id="winBanner"></div>
+
+            <div class="clocks-row">
+                <div class="clock-block">
+                    <div class="clock-label">Tiempo de partido</div>
+                    <div class="game-clock" id="gameClock">10:00</div>
+                    <div class="clock-controls">
+                        <button class="btn btn-accent" id="gameClockToggle">Iniciar</button>
+                        <button class="btn btn-ghost" id="gameClockReset">Reset 10:00</button>
+                    </div>
+                </div>
+                <div class="clock-block">
+                    <div class="clock-label">Posesión</div>
+                    <div class="shot-clock" id="shotClock">12</div>
+                    <div class="clock-controls">
+                        <button class="btn btn-ghost" id="shotClockReset">Reset 12s</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="teams-row">
+                <div class="team-panel" id="team1Panel">
+                    <div class="team-name" id="team1Name">—</div>
+                    <div class="team-score" id="team1Score">0</div>
+                    <div class="score-buttons">
+                        <button class="btn btn-accent" onclick="addScore(1,1)">+1</button>
+                        <button class="btn btn-accent" onclick="addScore(1,2)">+2</button>
+                        <button class="btn btn-ghost" onclick="addScore(1,-1)">-1</button>
+                    </div>
+                    <button class="btn btn-ghost timeout-btn" id="timeout1Btn" onclick="useTimeout(1)">Tiempo muerto</button>
+                    <div class="fouls-block">
+                        <div class="clock-label">Faltas de equipo</div>
+                        <div class="fouls-count" id="team1Fouls">0</div>
+                        <div class="fouls-buttons">
+                            <button class="btn btn-ghost" onclick="addFoul(1,1)">+1 falta</button>
+                            <button class="btn btn-ghost" onclick="addFoul(1,-1)">-1</button>
+                        </div>
+                        <span class="badge-pill" id="team1Bonus">Bonus</span>
+                        <span class="badge-pill penalty" id="team1Penalty">Falta grave</span>
+                    </div>
+                </div>
+
+                <div class="vs-label">VS</div>
+
+                <div class="team-panel" id="team2Panel">
+                    <div class="team-name" id="team2Name">—</div>
+                    <div class="team-score" id="team2Score">0</div>
+                    <div class="score-buttons">
+                        <button class="btn btn-accent" onclick="addScore(2,1)">+1</button>
+                        <button class="btn btn-accent" onclick="addScore(2,2)">+2</button>
+                        <button class="btn btn-ghost" onclick="addScore(2,-1)">-1</button>
+                    </div>
+                    <button class="btn btn-ghost timeout-btn" id="timeout2Btn" onclick="useTimeout(2)">Tiempo muerto</button>
+                    <div class="fouls-block">
+                        <div class="clock-label">Faltas de equipo</div>
+                        <div class="fouls-count" id="team2Fouls">0</div>
+                        <div class="fouls-buttons">
+                            <button class="btn btn-ghost" onclick="addFoul(2,1)">+1 falta</button>
+                            <button class="btn btn-ghost" onclick="addFoul(2,-1)">-1</button>
+                        </div>
+                        <span class="badge-pill" id="team2Bonus">Bonus</span>
+                        <span class="badge-pill penalty" id="team2Penalty">Falta grave</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-row">
+                <button class="btn btn-ghost" id="overtimeBtn" style="display:none;" onclick="startOvertime()">Iniciar prórroga (a 2 puntos)</button>
+                <button class="btn btn-danger" id="finishBtn">Finalizar partido</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="confirmWinnerModal">
+        <div class="modal-box">
+            <h3>¿Quién ganó el partido?</h3>
+            <div class="winner-choice" id="winnerChoiceBox"></div>
+            <div style="display:flex; gap: var(--space-sm); justify-content: flex-end;">
+                <button class="btn btn-ghost" onclick="closeWinnerModal()">Cancelar</button>
+                <button class="btn btn-accent" id="confirmWinnerBtn" disabled onclick="saveMatchResult()">Confirmar y guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://xehgsfzdffuqvlwxfrpi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhlaGdzZnpkZmZ1cXZsd3hmcnBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMjU1MTksImV4cCI6MjEwMTgwMTUxOX0.Et60SK7B5IB9VghBXBrZxBhe5_icYErRD9S9f1K7Wt0';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const params = new URLSearchParams(location.search);
+        const matchId = params.get('match');
+
+        let match = null;
+        let state = {
+            score1: 0, score2: 0,
+            fouls1: 0, fouls2: 0,
+            timeout1Used: false, timeout2Used: false,
+            gameSeconds: 600,
+            shotSeconds: 12,
+            gameRunning: false,
+            overtime: false,
+            overtimeStart1: 0, overtimeStart2: 0
+        };
+        let gameInterval = null;
+        let shotInterval = null;
+
+        function showAlert(id, message) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        async function checkSession() {
+            const { data } = await sb.auth.getSession();
+            if (data.session) {
+                showScoreboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('scoreboardSection').style.display = 'none';
+        }
+
+        function showScoreboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('scoreboardSection').style.display = 'block';
+            loadMatch();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Entrar';
+
+            if (error) {
+                showAlert('loginError', 'Credenciales incorrectas');
+                return;
+            }
+            showScoreboard();
+        });
+
+        async function loadMatch() {
+            if (!matchId) {
+                showAlert('errorAlert', 'No se especificó ningún partido (falta ?match=ID en la URL)');
+                return;
+            }
+
+            const { data, error } = await sb.from('matches').select('*').eq('id', matchId).single();
+            if (error || !data) {
+                showAlert('errorAlert', 'No se pudo cargar el partido');
+                return;
+            }
+
+            match = data;
+            document.getElementById('team1Name').textContent = match.team1_name;
+            document.getElementById('team2Name').textContent = match.team2_name;
+
+            if (match.status === 'completed') {
+                state.score1 = match.team1_score || 0;
+                state.score2 = match.team2_score || 0;
+                updateScoreDisplay();
+                showAlert('successAlert', 'Este partido ya está finalizado. Resultado: ' + state.score1 + ' - ' + state.score2);
+            }
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('team1Score').textContent = state.score1;
+            document.getElementById('team2Score').textContent = state.score2;
+            checkWinCondition();
+        }
+
+        function addScore(team, delta) {
+            if (team === 1) state.score1 = Math.max(0, state.score1 + delta);
+            else state.score2 = Math.max(0, state.score2 + delta);
+
+            if (state.overtime) {
+                if (team === 1) state.overtimeStart1 += (delta > 0 ? delta : 0);
+                else state.overtimeStart2 += (delta > 0 ? delta : 0);
+                checkOvertimeWin();
+            }
+
+            updateScoreDisplay();
+        }
+
+        function updateFoulsDisplay() {
+            document.getElementById('team1Fouls').textContent = state.fouls1;
+            document.getElementById('team2Fouls').textContent = state.fouls2;
+
+            document.getElementById('team1Bonus').classList.toggle('show', state.fouls1 >= 7 && state.fouls1 < 10);
+            document.getElementById('team1Penalty').classList.toggle('show', state.fouls1 >= 10);
+            document.getElementById('team2Bonus').classList.toggle('show', state.fouls2 >= 7 && state.fouls2 < 10);
+            document.getElementById('team2Penalty').classList.toggle('show', state.fouls2 >= 10);
+        }
+
+        function addFoul(team, delta) {
+            if (team === 1) state.fouls1 = Math.max(0, state.fouls1 + delta);
+            else state.fouls2 = Math.max(0, state.fouls2 + delta);
+            updateFoulsDisplay();
+        }
+
+        function useTimeout(team) {
+            const key = team === 1 ? 'timeout1Used' : 'timeout2Used';
+            if (state[key]) return;
+            state[key] = true;
+            document.getElementById(`timeout${team}Btn`).classList.add('used');
+            document.getElementById(`timeout${team}Btn`).textContent = 'Tiempo muerto usado';
+        }
+
+        function formatClock(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateGameClockDisplay() {
+            const el = document.getElementById('gameClock');
+            el.textContent = formatClock(state.gameSeconds);
+            el.classList.toggle('warning', state.gameSeconds <= 60 && state.gameSeconds > 20);
+            el.classList.toggle('danger', state.gameSeconds <= 20);
+        }
+
+        function updateShotClockDisplay() {
+            const el = document.getElementById('shotClock');
+            el.textContent = state.shotSeconds;
+            el.classList.toggle('danger', state.shotSeconds <= 3);
+        }
+
+        document.getElementById('gameClockToggle').addEventListener('click', () => {
+            state.gameRunning = !state.gameRunning;
+            const btn = document.getElementById('gameClockToggle');
+
+            if (state.gameRunning) {
+                btn.textContent = 'Pausar';
+                gameInterval = setInterval(() => {
+                    if (state.gameSeconds > 0) {
+                        state.gameSeconds--;
+                        updateGameClockDisplay();
+                        if (state.gameSeconds === 0) {
+                            clearInterval(gameInterval);
+                            state.gameRunning = false;
+                            btn.textContent = 'Iniciar';
+                            onGameClockZero();
+                        }
+                    }
+                }, 1000);
+
+                if (!shotInterval) startShotClockInterval();
+            } else {
+                btn.textContent = 'Iniciar';
+                clearInterval(gameInterval);
+                clearInterval(shotInterval);
+                shotInterval = null;
+            }
+        });
+
+        document.getElementById('gameClockReset').addEventListener('click', () => {
+            clearInterval(gameInterval);
+            state.gameRunning = false;
+            state.gameSeconds = 600;
+            document.getElementById('gameClockToggle').textContent = 'Iniciar';
+            updateGameClockDisplay();
+        });
+
+        function startShotClockInterval() {
+            shotInterval = setInterval(() => {
+                if (state.shotSeconds > 0) {
+                    state.shotSeconds--;
+                    updateShotClockDisplay();
+                }
+            }, 1000);
+        }
+
+        document.getElementById('shotClockReset').addEventListener('click', () => {
+            state.shotSeconds = 12;
+            updateShotClockDisplay();
+        });
+
+        function onGameClockZero() {
+            if (state.score1 === state.score2) {
+                document.getElementById('overtimeBtn').style.display = 'inline-block';
+                showBanner('EMPATE — Prórroga necesaria (primero en anotar 2 puntos)');
+            } else {
+                const winner = state.score1 > state.score2 ? match.team1_name : match.team2_name;
+                showBanner(winner + ' GANA AL FINALIZAR EL TIEMPO');
+            }
+        }
+
+        function checkWinCondition() {
+            if (state.overtime) return;
+            if (state.score1 >= 21) showBanner(match.team1_name + ' GANA POR PUNTOS (21)');
+            else if (state.score2 >= 21) showBanner(match.team2_name + ' GANA POR PUNTOS (21)');
+            else hideBanner();
+        }
+
+        function showBanner(text) {
+            const b = document.getElementById('winBanner');
+            b.textContent = text;
+            b.classList.add('show');
+        }
+
+        function hideBanner() {
+            document.getElementById('winBanner').classList.remove('show');
+        }
+
+        function startOvertime() {
+            state.overtime = true;
+            state.overtimeStart1 = 0;
+            state.overtimeStart2 = 0;
+            document.getElementById('overtimeBtn').style.display = 'none';
+            showBanner('PRÓRROGA EN CURSO — Primero en anotar 2 puntos gana');
+        }
+
+        function checkOvertimeWin() {
+            if (state.overtimeStart1 >= 2) showBanner(match.team1_name + ' GANA LA PRÓRROGA');
+            else if (state.overtimeStart2 >= 2) showBanner(match.team2_name + ' GANA LA PRÓRROGA');
+        }
+
+        let selectedWinner = null;
+
+        document.getElementById('finishBtn').addEventListener('click', () => {
+            if (!match) return;
+            selectedWinner = state.score1 > state.score2 ? 1 : (state.score2 > state.score1 ? 2 : null);
+
+            const box = document.getElementById('winnerChoiceBox');
+            box.innerHTML = `
+                <button id="choiceTeam1" onclick="selectWinner(1)">${match.team1_name} (${state.score1})</button>
+                <button id="choiceTeam2" onclick="selectWinner(2)">${match.team2_name} (${state.score2})</button>
+            `;
+            if (selectedWinner) {
+                document.getElementById(`choiceTeam${selectedWinner}`).classList.add('selected');
+                document.getElementById('confirmWinnerBtn').disabled = false;
+            } else {
+                document.getElementById('confirmWinnerBtn').disabled = true;
+            }
+            document.getElementById('confirmWinnerModal').classList.add('show');
+        });
+
+        function selectWinner(team) {
+            selectedWinner = team;
+            document.getElementById('choiceTeam1').classList.toggle('selected', team === 1);
+            document.getElementById('choiceTeam2').classList.toggle('selected', team === 2);
+            document.getElementById('confirmWinnerBtn').disabled = false;
+        }
+
+        function closeWinnerModal() {
+            document.getElementById('confirmWinnerModal').classList.remove('show');
+        }
+
+        async function saveMatchResult() {
+            if (!selectedWinner || !match) return;
+
+            const winnerId = selectedWinner === 1 ? match.team1_id : match.team2_id;
+
+            const { error } = await sb.from('matches').update({
+                team1_score: state.score1,
+                team2_score: state.score2,
+                winner_id: winnerId,
+                status: 'completed'
+            }).eq('id', match.id);
+
+            closeWinnerModal();
+
+            if (error) {
+                showAlert('errorAlert', 'Error al guardar resultado: ' + error.message);
+                return;
+            }
+
+            clearInterval(gameInterval);
+            clearInterval(shotInterval);
+            showAlert('successAlert', 'Resultado guardado correctamente. Ya puedes cerrar esta ventana o volver al panel admin.');
+        }
+
+        checkSession();
+    </script>
+</body>
+</html>

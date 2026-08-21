@@ -634,7 +634,7 @@
             <div class="info-bar">
                 <div>
                     <strong>Pabellón Cecilio Gallego</strong>
-                    Inscripciones abiertas. Forma tu equipo de 3 o 4 jugadores — plazas limitadas a 12 equipos.
+                    Inscripciones abiertas. Forma tu equipo de 3 o 4 jugadores — plazas limitadas a 6 equipos.
                 </div>
             </div>
         </header>
@@ -657,7 +657,7 @@
 
             <div id="capacityFullMessage" class="payment-info" style="display: none; border-color: var(--color-error);">
                 <strong style="color: var(--color-error);">Cupo completo</strong>
-                <p>Se ha alcanzado el máximo de 12 equipos inscritos. Contacta con <a href="mailto:patrocinios@baloncestotorrevieja.com" style="color:var(--color-error);">patrocinios@baloncestotorrevieja.com</a> para lista de espera.</p>
+                <p>Se ha alcanzado el máximo de 6 equipos inscritos. Contacta con <a href="mailto:patrocinios@baloncestotorrevieja.com" style="color:var(--color-error);">patrocinios@baloncestotorrevieja.com</a> para lista de espera.</p>
             </div>
 
             <form class="form-section" id="teamForm">
@@ -728,10 +728,45 @@
 
             <div id="tournamentSection" style="display: none;">
                 <div class="tournament-bracket">
-                    <h2>Sorteo del torneo</h2>
+                    <h2>Torneo</h2>
+
                     <div class="bracket-section">
-                        <h3>Fase de grupos</h3>
-                        <div id="groupsContainer" class="groups-grid"></div>
+                        <h3>Clasificación de la liguilla</h3>
+                        <div class="overflow-x">
+                            <table style="width:100%; border-collapse: collapse; font-size: var(--text-sm);">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--color-rule);">
+                                        <th style="text-align:left; padding: var(--space-xs);">#</th>
+                                        <th style="text-align:left; padding: var(--space-xs);">Equipo</th>
+                                        <th style="padding: var(--space-xs);">PJ</th>
+                                        <th style="padding: var(--space-xs);">PG</th>
+                                        <th style="padding: var(--space-xs);">PP</th>
+                                        <th style="padding: var(--space-xs);">Dif</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="standingsBody" style="font-family: var(--font-mono); font-variant-numeric: tabular-nums;"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bracket-section" id="leagueMatchesSection">
+                        <h3>Calendario de la liguilla</h3>
+                        <div id="publicLeagueMatches"></div>
+                    </div>
+
+                    <div class="bracket-section" id="semisSection" style="display:none;">
+                        <h3>Semifinales</h3>
+                        <div id="publicSemis"></div>
+                    </div>
+
+                    <div class="bracket-section" id="finalSection" style="display:none;">
+                        <h3>Final</h3>
+                        <div id="publicFinal"></div>
+                    </div>
+
+                    <div id="publicChampion" style="display:none; text-align:center; padding: var(--space-lg); background: var(--color-paper-2); border-radius: var(--radius); margin-top: var(--space-lg);">
+                        <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; color: var(--color-ink-2);" id="publicChampionName"></div>
+                        <div style="font-size: var(--text-sm); color: var(--color-neutral); text-transform: uppercase; letter-spacing: 0.06em;">Campeón del torneo</div>
                     </div>
                 </div>
             </div>
@@ -749,7 +784,7 @@
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const shirtsizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-        const MAX_TEAMS = 12;
+        const MAX_TEAMS = 6;
 
         function updatePlayerFields() {
             const count = document.getElementById('playerCount').value;
@@ -954,24 +989,91 @@
             return count || 0;
         }
 
+        function computeStandingsPublic(leagueMatches) {
+            const table = {};
+            leagueMatches.forEach(m => {
+                [[m.team1_id, m.team1_name], [m.team2_id, m.team2_name]].forEach(([id, name]) => {
+                    if (id && !table[id]) table[id] = { id, name, played: 0, wins: 0, losses: 0, pf: 0, pc: 0 };
+                });
+            });
+
+            leagueMatches.filter(m => m.status === 'completed').forEach(m => {
+                const t1 = table[m.team1_id];
+                const t2 = table[m.team2_id];
+                if (!t1 || !t2) return;
+                t1.played++; t2.played++;
+                t1.pf += m.team1_score || 0; t1.pc += m.team2_score || 0;
+                t2.pf += m.team2_score || 0; t2.pc += m.team1_score || 0;
+                if (m.winner_id === t1.id) { t1.wins++; t2.losses++; }
+                else if (m.winner_id === t2.id) { t2.wins++; t1.losses++; }
+            });
+
+            return Object.values(table).sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                const diffA = a.pf - a.pc, diffB = b.pf - b.pc;
+                if (diffB !== diffA) return diffB - diffA;
+                return b.pf - a.pf;
+            });
+        }
+
+        function renderPublicMatchRow(m) {
+            const statusLabel = m.status === 'completed'
+                ? `<strong>${m.team1_score} - ${m.team2_score}</strong>`
+                : '<span style="color: var(--color-neutral);">Pendiente</span>';
+            return `
+                <div class="group-team" style="display:flex; justify-content: space-between; align-items:center; gap: var(--space-md);">
+                    <span>${escapeHtmlPublic(m.team1_name)} vs ${escapeHtmlPublic(m.team2_name)}</span>
+                    <span>${statusLabel}</span>
+                </div>
+            `;
+        }
+
+        function escapeHtmlPublic(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
+
         async function renderTournament() {
-            const { data, error } = await sb.from('tournament_state').select('*').eq('id', 1).maybeSingle();
-            if (error || !data) return;
+            const { data: matches, error } = await sb.from('matches').select('*').order('match_order');
+            if (error || !matches || matches.length === 0) return;
 
             document.getElementById('tournamentSection').style.display = 'block';
-            const container = document.getElementById('groupsContainer');
-            container.innerHTML = '';
 
-            ['A', 'B'].forEach(groupName => {
-                const group = data.groups[groupName] || [];
-                const card = document.createElement('div');
-                card.className = 'group-card';
-                card.innerHTML = `
-                    <h4>Grupo ${groupName}</h4>
-                    ${group.map(team => `<div class="group-team">${team.name}</div>`).join('')}
-                `;
-                container.appendChild(card);
-            });
+            const leagueMatches = matches.filter(m => m.phase === 'liguilla');
+            const semiMatches = matches.filter(m => m.phase === 'semifinal');
+            const finalMatches = matches.filter(m => m.phase === 'final');
+
+            const standings = computeStandingsPublic(leagueMatches);
+            document.getElementById('standingsBody').innerHTML = standings.map((t, i) => `
+                <tr style="border-bottom: 1px solid var(--color-rule);">
+                    <td style="padding: var(--space-xs);">${i + 1}</td>
+                    <td style="padding: var(--space-xs); font-family: var(--font-body);">${escapeHtmlPublic(t.name)}</td>
+                    <td style="padding: var(--space-xs); text-align:center;">${t.played}</td>
+                    <td style="padding: var(--space-xs); text-align:center;">${t.wins}</td>
+                    <td style="padding: var(--space-xs); text-align:center;">${t.losses}</td>
+                    <td style="padding: var(--space-xs); text-align:center;">${t.pf - t.pc > 0 ? '+' : ''}${t.pf - t.pc}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('publicLeagueMatches').innerHTML = leagueMatches.map(renderPublicMatchRow).join('');
+
+            if (semiMatches.length > 0) {
+                document.getElementById('semisSection').style.display = 'block';
+                document.getElementById('publicSemis').innerHTML = semiMatches.map(renderPublicMatchRow).join('');
+            }
+
+            if (finalMatches.length > 0) {
+                document.getElementById('finalSection').style.display = 'block';
+                document.getElementById('publicFinal').innerHTML = finalMatches.map(renderPublicMatchRow).join('');
+            }
+
+            if (finalMatches.length === 1 && finalMatches[0].status === 'completed') {
+                const f = finalMatches[0];
+                const championName = f.winner_id === f.team1_id ? f.team1_name : f.team2_name;
+                document.getElementById('publicChampionName').textContent = championName;
+                document.getElementById('publicChampion').style.display = 'block';
+            }
         }
 
         document.getElementById('teamForm').addEventListener('submit', async (e) => {
