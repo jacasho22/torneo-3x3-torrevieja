@@ -854,17 +854,43 @@
             const idx = Array.from({ length: n }, (_, i) => i);
             const fixed = idx[0];
             let rotating = idx.slice(1);
-            const rounds = [];
+            const pairs = [];
             for (let r = 0; r < n - 1; r++) {
                 const current = [fixed, ...rotating];
-                const round = [];
                 for (let i = 0; i < n / 2; i++) {
-                    round.push([current[i], current[n - 1 - i]]);
+                    pairs.push([current[i], current[n - 1 - i]]);
                 }
-                rounds.push(round);
                 rotating.push(rotating.shift());
             }
-            return rounds;
+            return pairs;
+        }
+
+        // Reordena los partidos para que, jugando uno detrás de otro en una sola
+        // pista, cada equipo descanse un número de partidos lo más parecido
+        // posible entre sus apariciones: en cada paso elige el partido cuyos
+        // 2 equipos llevan más tiempo sin jugar.
+        function balanceRestOrder(pairs, n) {
+            const remaining = [...pairs];
+            const lastPlayed = new Array(n).fill(-1);
+            const ordered = [];
+            let step = 0;
+            while (remaining.length) {
+                let bestIdx = 0;
+                let bestScore = -Infinity;
+                remaining.forEach(([a, b], k) => {
+                    const restA = step - lastPlayed[a];
+                    const restB = step - lastPlayed[b];
+                    const score = Math.min(restA, restB) * 100 + (restA + restB);
+                    if (score > bestScore) { bestScore = score; bestIdx = k; }
+                });
+                const [a, b] = remaining[bestIdx];
+                ordered.push([a, b]);
+                lastPlayed[a] = step;
+                lastPlayed[b] = step;
+                remaining.splice(bestIdx, 1);
+                step++;
+            }
+            return ordered;
         }
 
         document.getElementById('generateLeagueBtn').addEventListener('click', async () => {
@@ -885,21 +911,20 @@
             }
 
             const shuffled = [...teams].sort(() => Math.random() - 0.5);
-            const rounds = roundRobinPairs(LEAGUE_TEAM_COUNT);
+            const pairs = roundRobinPairs(LEAGUE_TEAM_COUNT);
+            const ordered = balanceRestOrder(pairs, LEAGUE_TEAM_COUNT);
             const rows = [];
             let order = 0;
-            rounds.forEach(round => {
-                round.forEach(([i, j]) => {
-                    order++;
-                    rows.push({
-                        phase: 'liguilla',
-                        match_order: order,
-                        team1_id: shuffled[i].id,
-                        team2_id: shuffled[j].id,
-                        team1_name: shuffled[i].name,
-                        team2_name: shuffled[j].name,
-                        status: 'pending'
-                    });
+            ordered.forEach(([i, j]) => {
+                order++;
+                rows.push({
+                    phase: 'liguilla',
+                    match_order: order,
+                    team1_id: shuffled[i].id,
+                    team2_id: shuffled[j].id,
+                    team1_name: shuffled[i].name,
+                    team2_name: shuffled[j].name,
+                    status: 'pending'
                 });
             });
 
