@@ -675,6 +675,54 @@
                 document.getElementById('gameClockToggle').textContent = 'Iniciar';
             }
             showNotice('VIOLACIÓN DE POSESIÓN — Reloj parado');
+            playWhistle();
+        }
+
+        // Silbato sintetizado (sin archivos de audio): oscilador cuadrado con
+        // un LFO que le da el trino característico de un silbato de árbitro.
+        let audioCtx = null;
+
+        function ensureAudioCtx() {
+            if (!audioCtx) {
+                const AudioCtor = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtor) return;
+                audioCtx = new AudioCtor();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        document.addEventListener('click', ensureAudioCtx, { once: true });
+
+        function playWhistle() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const duration = 0.6;
+
+            const osc = audioCtx.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(3200, now);
+
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(28, now);
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.setValueAtTime(120, now);
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+            gain.gain.setValueAtTime(0.35, now + duration - 0.08);
+            gain.gain.linearRampToValueAtTime(0, now + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            lfo.start(now);
+            osc.stop(now + duration);
+            lfo.stop(now + duration);
         }
 
         document.getElementById('shotClockReset').addEventListener('click', () => {
