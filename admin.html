@@ -591,13 +591,17 @@
             }
         }
 
+        let sbSessionActive = false;
+
         function showLogin() {
+            sbSessionActive = false;
             document.getElementById('loginSection').style.display = 'flex';
             document.getElementById('adminSection').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'none';
         }
 
         function showAdmin() {
+            sbSessionActive = true;
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
             document.getElementById('logoutBtn').style.display = 'inline-block';
@@ -1101,6 +1105,14 @@
             showAlert('successAlert', 'Final generada');
             loadLeague();
         });
+
+        // Mantiene la clasificación y el calendario al día solos: al volver a esta
+        // pestaña (p.ej. tras cerrar el marcador de un partido) y cada 15s mientras
+        // está abierta, sin que haga falta recargar la página a mano.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && sbSessionActive) loadLeague();
+        });
+        setInterval(() => { if (!document.hidden && sbSessionActive) loadLeague(); }, 15000);
 
         checkSession();
     </script>

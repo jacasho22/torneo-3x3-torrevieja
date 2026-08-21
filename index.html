@@ -1121,6 +1121,13 @@
         applyTeamsListVisibility();
         renderTeams();
         renderTournament();
+
+        // Clasificación y calendario se refrescan solos: al volver a la pestaña
+        // y cada 15s mientras está abierta, sin recargar la página a mano.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) renderTournament();
+        });
+        setInterval(() => { if (!document.hidden) renderTournament(); }, 15000);
     </script>
 </body>
 </html>
