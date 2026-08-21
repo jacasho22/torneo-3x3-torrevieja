@@ -550,6 +550,16 @@
             </div>
 
             <div class="section-card">
+                <div class="toolbar">
+                    <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2);">Escaleta del día (2 pistas)</h2>
+                </div>
+                <p style="font-size: var(--text-sm); color: var(--color-neutral); margin-bottom: var(--space-md);">Vista privada, no aparece en la web pública. Inicio 15:15, 2 partidos en paralelo por franja, fin previsto antes de las 20:00.</p>
+                <div id="escaletaBox" style="display:none;">
+                    <div id="escaletaList"></div>
+                </div>
+            </div>
+
+            <div class="section-card">
                 <h2 style="font-family: var(--font-display); font-weight: 800; color: var(--color-ink-2); margin-bottom: var(--space-md);">Stock de camisetas</h2>
                 <p style="font-size: var(--text-sm); color: var(--color-neutral); margin-bottom: var(--space-md);">"Pedida 1ª" cuenta jugadores que marcaron esa talla como primera opción. Edita el stock inicial para reservar camisetas de patrocinio o descontar unidades ya comprometidas.</p>
                 <div class="overflow-x">
@@ -949,6 +959,75 @@
             loadLeague();
         });
 
+        // Escaleta con 2 pistas en paralelo: cada franja empareja 2 partidos
+        // consecutivos del calendario (match_order i, i+1) en Pista A / Pista B.
+        // Como el calendario ya reparte los descansos, cada pareja consecutiva
+        // usa 4 equipos distintos, así que nunca coincide un equipo en las 2 pistas.
+        const ESCALETA_START = { hour: 15, minute: 15 };
+        const ESCALETA_SLOT_MIN = 20;
+        const ESCALETA_BREAK_MIN = 15;
+
+        function addMinutes(base, mins) {
+            const d = new Date(2000, 0, 1, base.hour, base.minute);
+            d.setMinutes(d.getMinutes() + mins);
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+
+        function escaletaMatchLabel(m) {
+            if (!m) return '<span style="color: var(--color-neutral);">— pista libre —</span>';
+            const status = m.status === 'completed'
+                ? `<strong>${m.team1_score} - ${m.team2_score}</strong>`
+                : '<span style="color: var(--color-neutral);">Pendiente</span>';
+            return `${escapeHtml(m.team1_name)} vs ${escapeHtml(m.team2_name)} &nbsp; ${status}`;
+        }
+
+        function renderEscaleta(leagueMatches, semiMatches, finalMatches) {
+            const box = document.getElementById('escaletaBox');
+            if (!leagueMatches.length) { box.style.display = 'none'; return; }
+            box.style.display = 'block';
+
+            const rows = [];
+            let slot = 0;
+            for (let i = 0; i < leagueMatches.length; i += 2) {
+                rows.push({
+                    time: addMinutes(ESCALETA_START, slot * ESCALETA_SLOT_MIN),
+                    courtA: leagueMatches[i],
+                    courtB: leagueMatches[i + 1] || null
+                });
+                slot++;
+            }
+            const liguillaEndMin = slot * ESCALETA_SLOT_MIN;
+
+            const semisStartMin = liguillaEndMin + ESCALETA_BREAK_MIN;
+            rows.push({
+                time: addMinutes(ESCALETA_START, semisStartMin),
+                courtA: semiMatches[0] || null,
+                courtB: semiMatches[1] || null,
+                label: 'Semifinales'
+            });
+
+            const finalStartMin = semisStartMin + ESCALETA_SLOT_MIN + ESCALETA_BREAK_MIN;
+            rows.push({
+                time: addMinutes(ESCALETA_START, finalStartMin),
+                courtA: finalMatches[0] || null,
+                courtB: null,
+                label: 'Final'
+            });
+
+            document.getElementById('escaletaList').innerHTML = rows.map(r => `
+                <div class="team-card" style="padding: var(--space-md); margin-bottom: var(--space-sm);">
+                    <div style="display:flex; gap: var(--space-md); align-items:flex-start; flex-wrap:wrap;">
+                        <div style="font-family: var(--font-mono); font-weight:700; font-size:1.1rem; min-width:4rem;">${r.time}</div>
+                        <div style="flex:1; min-width:12rem;">
+                            ${r.label ? `<div style="font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.06em; color: var(--color-accent); font-weight:700; margin-bottom: var(--space-2xs);">${r.label}</div>` : ''}
+                            <div style="margin-bottom: var(--space-2xs);"><span style="font-family:var(--font-mono); font-size:var(--text-xs); color: var(--color-neutral);">PISTA A</span> — ${escaletaMatchLabel(r.courtA)}</div>
+                            <div><span style="font-family:var(--font-mono); font-size:var(--text-xs); color: var(--color-neutral);">PISTA B</span> — ${escaletaMatchLabel(r.courtB)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function computeStandings(leagueMatches, teams) {
             const table = {};
             teams.forEach(t => {
@@ -1022,6 +1101,7 @@
                 document.getElementById('semifinalsBox').style.display = 'none';
                 document.getElementById('finalBox').style.display = 'none';
                 document.getElementById('championBox').style.display = 'none';
+                document.getElementById('escaletaBox').style.display = 'none';
                 return;
             }
 
@@ -1083,6 +1163,8 @@
             } else {
                 championBox.style.display = 'none';
             }
+
+            renderEscaleta(leagueMatches, semiMatches, finalMatches);
 
             window._standings = standings;
         }
