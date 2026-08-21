@@ -363,6 +363,7 @@
             <div class="alert alert-success" id="successAlert"></div>
 
             <div class="banner" id="winBanner"></div>
+            <div class="banner" id="noticeBanner" style="background: var(--color-warning); color: var(--color-ink);"></div>
 
             <div class="clocks-row">
                 <div class="clock-block">
@@ -550,6 +551,11 @@
             if (team === 1) state.score1 = Math.max(0, state.score1 + delta);
             else state.score2 = Math.max(0, state.score2 + delta);
 
+            if (delta > 0) {
+                state.shotSeconds = 12;
+                updateShotClockDisplay();
+            }
+
             if (state.overtime) {
                 if (team === 1) state.overtimeStart1 += (delta > 0 ? delta : 0);
                 else state.overtimeStart2 += (delta > 0 ? delta : 0);
@@ -573,6 +579,16 @@
             if (team === 1) state.fouls1 = Math.max(0, state.fouls1 + delta);
             else state.fouls2 = Math.max(0, state.fouls2 + delta);
             updateFoulsDisplay();
+
+            if (delta > 0 && match) {
+                const fouls = team === 1 ? state.fouls1 : state.fouls2;
+                const teamName = team === 1 ? match.team1_name : match.team2_name;
+                if (fouls === 10) {
+                    showNotice('TIROS LIBRES — Falta grave de ' + teamName + ' (2 tiros + posesión)');
+                } else if (fouls === 7) {
+                    showNotice('TIROS LIBRES — Bonus de ' + teamName + ' (2 tiros libres)');
+                }
+            }
         }
 
         function useTimeout(team) {
@@ -643,8 +659,22 @@
                 if (state.shotSeconds > 0) {
                     state.shotSeconds--;
                     updateShotClockDisplay();
+                    if (state.shotSeconds === 0) {
+                        onShotClockZero();
+                    }
                 }
             }, 1000);
+        }
+
+        function onShotClockZero() {
+            clearInterval(shotInterval);
+            shotInterval = null;
+            if (state.gameRunning) {
+                clearInterval(gameInterval);
+                state.gameRunning = false;
+                document.getElementById('gameClockToggle').textContent = 'Iniciar';
+            }
+            showNotice('VIOLACIÓN DE POSESIÓN — Reloj parado');
         }
 
         document.getElementById('shotClockReset').addEventListener('click', () => {
@@ -677,6 +707,16 @@
 
         function hideBanner() {
             document.getElementById('winBanner').classList.remove('show');
+        }
+
+        let noticeTimeout = null;
+
+        function showNotice(text) {
+            const b = document.getElementById('noticeBanner');
+            b.textContent = text;
+            b.classList.add('show');
+            clearTimeout(noticeTimeout);
+            noticeTimeout = setTimeout(() => b.classList.remove('show'), 6000);
         }
 
         function startOvertime() {
