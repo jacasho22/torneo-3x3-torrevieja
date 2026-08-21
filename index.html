@@ -161,6 +161,54 @@
             gap: var(--space-lg);
         }
 
+        .tab-nav {
+            display: flex;
+            gap: var(--space-lg);
+            border-bottom: 1px solid var(--color-rule);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: var(--space-md) var(--space-sm);
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: var(--text-lg);
+            color: var(--color-neutral);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            transition: color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+        }
+
+        .tab-btn:hover {
+            color: var(--color-ink-2);
+        }
+
+        .tab-btn.active {
+            color: var(--color-ink);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .tab-panel {
+            display: none;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+        @media (max-width: 400px) {
+            .tab-btn {
+                font-size: var(--text-md);
+                padding: var(--space-sm) var(--space-2xs);
+            }
+        }
+
         .form-section {
             display: flex;
             flex-direction: column;
@@ -643,6 +691,12 @@
             <div class="alert alert-success" id="successAlert"></div>
             <div class="alert alert-error" id="errorAlert"></div>
 
+            <div class="tab-nav">
+                <button type="button" class="tab-btn active" id="tabBtnTorneo" onclick="showTab('torneo')">Torneo</button>
+                <button type="button" class="tab-btn" id="tabBtnInscripcion" onclick="showTab('inscripcion')">Inscripción</button>
+            </div>
+
+            <div id="tabInscripcion" class="tab-panel">
             <div class="payment-info">
                 <strong>Forma de pago</strong>
                 <p>15€ por jugador. Elige el método que prefieras:</p>
@@ -716,7 +770,9 @@
 
                 <button type="submit" class="btn btn-secondary" id="submitBtn">Inscribir equipo</button>
             </form>
+            </div>
 
+            <div id="tabTorneo" class="tab-panel active">
             <div class="teams-list" id="teamsListSection" style="display: none;">
                 <h2>Equipos inscritos</h2>
                 <div id="teamsList">
@@ -770,6 +826,7 @@
                     </div>
                 </div>
             </div>
+            </div>
         </main>
 
         <footer>
@@ -785,6 +842,13 @@
 
         const shirtsizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
         const MAX_TEAMS = 6;
+
+        function showTab(name) {
+            document.getElementById('tabTorneo').classList.toggle('active', name === 'torneo');
+            document.getElementById('tabInscripcion').classList.toggle('active', name === 'inscripcion');
+            document.getElementById('tabBtnTorneo').classList.toggle('active', name === 'torneo');
+            document.getElementById('tabBtnInscripcion').classList.toggle('active', name === 'inscripcion');
+        }
 
         function updatePlayerFields() {
             const count = document.getElementById('playerCount').value;
